@@ -1,0 +1,266 @@
+﻿<div class="content-wrapper">
+    <section class="content-header">
+        <h1>
+            System
+            <small>user</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+            <li><a href="#">System</a></li>
+            <li class="active">User</li>
+        </ol>
+    </section>
+    <section class="content">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-body">
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <span class="input-group-addon form-control">Time Span</span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" v-model="datemin" ref="datemin" id="datemin" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" v-model="datemax" ref="datemax" id="datemax" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <button name="search"  type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i>Search</button>
+                            </div>
+                        </div>
+
+                        <p>上证指数</p>
+                        <div class="col-md-12">
+                            <div class="col-xs-12 col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sh','000001','','-2')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sh','000001','','-5')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>15分</span>
+                                <img v-bind:src="getImgUrl('sh','000001','M15','-3')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>5分</span>
+                                <img v-bind:src="getImgUrl('sh','000001','M5','-3')" style="width:100%;height:230px" />
+                            </div>
+                        </div>
+
+
+                        <p>深证指数</p>
+                        <div class="col-md-12">
+                            <div class="col-xs-12 col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sz','399001','','-2')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sz','399001','','-5')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>15分</span>
+                                <img v-bind:src="getImgUrl('sz','399001','M15','-3')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>5分</span>
+                                <img v-bind:src="getImgUrl('sz','399001','M5','-3')" style="width:100%;height:230px" />
+                            </div>
+                        </div>
+
+
+                        <p>沪深300</p>
+                        <div class="col-md-12">
+                            <div class="col-xs-12 col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sh','000300','','-2')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sh','000300','','-5')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>15分</span>
+                                <img v-bind:src="getImgUrl('sh','000300','M15','-3')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>5分</span>
+                                <img v-bind:src="getImgUrl('sh','000300','M5','-3')" style="width:100%;height:230px" />
+                            </div>
+                        </div>
+
+                        <p>创业板指</p>
+                        <div class="col-md-12">
+                            <div class="col-xs-12 col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sz','399006','','-2')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sz','399006','','-5')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>15分</span>
+                                <img v-bind:src="getImgUrl('sz','399006','M15','-3')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>5分</span>
+                                <img v-bind:src="getImgUrl('sz','399006','M5','-3')" style="width:100%;height:230px" />
+                            </div>
+                        </div>
+
+                        <p>中小板指</p>
+                        <div class="col-md-12">
+                            <div class="col-xs-12 col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sz','399005','','-2')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sz','399005','','-5')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>15分</span>
+                                <img v-bind:src="getImgUrl('sz','399005','M15','-3')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>5分</span>
+                                <img v-bind:src="getImgUrl('sz','399005','M5','-3')" style="width:100%;height:230px" />
+                            </div>
+                        </div>
+
+
+
+                        <p>上证50</p>
+                        <div class="col-md-12">
+                            <div class="col-xs-12 col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sh','000016','','-2')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sh','000016','','-5')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>15分</span>
+                                <img v-bind:src="getImgUrl('sh','000016','M15','-3')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>5分</span>
+                                <img v-bind:src="getImgUrl('sh','000016','M5','-3')" style="width:100%;height:230px" />
+                            </div>
+                        </div>
+
+                        <p>科创50</p>
+                        <div class="col-md-12">
+                            <div class="col-xs-12 col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sh','000688','','-2')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>日</span>
+                                <img v-bind:src="getImgUrl('sh','000688','','-5')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>15分</span>
+                                <img v-bind:src="getImgUrl('sh','000688','M15','-3')" style="width:100%;height:230px" />
+                            </div>
+                            <div class="col-xs-12  col-md-3 picture">
+                                <span>5分</span>
+                                <img v-bind:src="getImgUrl('sh','000688','M5','-3')" style="width:100%;height:230px" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<div class="table-responsive">
+                <table id="bootstraptable" class="table text-nowrap"></table>
+            </div>*@
+    </section>
+</div>
+
+
+@section styles{
+    <style>
+        .picture {
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+
+    </style>
+}
+
+@section scripts{
+    <script type="text/javascript">
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                UserNickname: '',
+                datemin: '',
+                datemax: ''
+            },
+            //beforeCreate: function () {
+            //    this.$nextTick(function () {
+            //        this.load();
+            //    });
+            //},
+            //created: function () {
+            //    this.$nextTick(function () {
+            //        this.load();
+            //    });
+            //},
+            mounted: function () {
+                var _self = this;
+                _self.$nextTick(function () {
+                    _self.$refs.Stock.parentNode.parentNode.classList.add("active");
+                    _self.$refs.Stock.classList.add("active");
+
+                    _self.datemin = _self.getCurrentMonthFirst();
+                    _self.datemax = _self.getCurrentMonthLast();
+                    $('#datemin').datetimepicker({
+                        format: 'yyyy-mm-dd',
+                        minView: 2,
+                        autoclose: true,
+                        language: "en-us"
+                    });
+                    $('#datemax').datetimepicker({
+                        format: 'yyyy-mm-dd',
+                        minView: 2,
+                        autoclose: true,
+                        language: "en-us"
+                    });
+                    setTimeout(function () {
+                        _self.loadL();
+                        $("div[class='pull-right search']")[0].children[0].setAttribute("placeholder", "Name or Nickname");
+                    }, 500);
+                    //$('#datemin')
+                    //    .datetimepicker()
+                    //    .on('changeDate', function (ev) {
+                    //        this.datemin = $('#datemin').val();
+                    //    });
+                });
+            },
+            methods: {
+
+                getImgUrl: function (place, number, lenth, scale) {
+                    var flag = "0."
+                    if (place == 'sz') {
+                        flag = "0.";
+                    } else {
+                        flag = "1.";
+                    }
+                    var url = "http://webquoteklinepic.eastmoney.com/GetPic.aspx?nid=" + flag + number + "&UnitWidth=" + scale + "&imageType=KXL&EF=&Formula=RSI&AT=1&&type=" + lenth;
+                    return url;
+                }
+
+            }
+        });
+    </script>
+}

@@ -1,0 +1,1643 @@
+﻿<div class="content-wrapper">
+    <section class="content-header">
+        <h1>
+            策略
+            <small>控制面板</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li class="active">策略</li>
+        </ol>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-body">
+                        <div class="form-inline" style="margin-bottom:20px" id="Indicator">
+                            <div class="form-group">
+                                <span class="input-group-addon form-control" type="submit" v-on:click="EnableEdit">日期范围</span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" ref="datemin" id="datemin" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" ref="datemax" id="datemax" class="form-control">
+                            </div>
+                            <div class="form-group" style="display:none">
+                                <input class="form-control" list="cookies" v-model="FavorType" @@click="inputSelect" />
+                                <datalist id="cookies">
+                                    <option v-for="item in OperationList">{{item.Operation}}</option>
+                                </datalist>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="text" v-model="stock" class="form-control" @@click="clearstock">
+                            </div>
+                            <div class="form-group">
+                                <button v-on:click="Refresh" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>刷新
+                                </button>
+                                <button name="search" v-on:click="searchL" type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i> 搜索</button>
+                                <button name="search" v-on:click="searchSimple" type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i> 搜索(简单)</button>
+                            </div>
+                            <div class="form-group">
+                                @*id="btn_add"*@
+                                <button v-on:click="showL" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+                                </button>
+                                <button type="button" v-on:click="deleteOperation()" class="btn btn-danger">
+                                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>删除
+                                </button>
+                                <button type="button" v-on:click="GetTonghuashunList()" class="btn btn-success">
+                                    <i class="fa fa-save"></i>加入自选
+                                </button>
+                                @*<a type="button" :href="JumpTolist()" target="_blank" class="btn btn-default">
+            自选
+        </a>*@
+
+                                <button type="button" v-on:click="JumpTolist()" class="btn btn-success">
+                                    <i class="fa fa-save"></i>获取自选
+                                </button>
+
+                                <button type="button" v-on:click="ChangeNameGroup()" class="btn btn-success">
+                                    <i class="fa fa-save"></i>另存自选
+                                </button>
+                            </div>
+                            <div style="float:right;font-weight:bold">{{TotalCount}}--Total:{{serverNumber}}</div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px">
+                            <textarea v-model="SelfSelectTxt" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px">
+                            <iframe src="" style="width:100%;height:50px" id="myFrame" scrolling="yes">
+                            </iframe>
+                        </div>
+
+                       
+
+
+                        <div id="target" class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px;">
+                            <dl class="permission-list" style="overflow:hidden">
+                                <dt>
+                                    行业
+                                    <input v-on:click="checkAllOperation" type="button" value="全选">
+                                    <input v-on:click="RemoveAllOperation" type="button" value="清空">
+                                </dt>
+                                <dd>
+                                    <dl class="cl permission-list2">
+                                        <dt v-for="(item,index) in OperationList" style="float:left;margin-left:10px">
+                                            <label :class="{'icon-checked': CheckOperationList.indexOf(item.Operation)!=-1}">
+                                                <input type="checkbox" v-model="CheckOperationList" :value="item.Operation">
+                                                {{item.Operation}}-{{item.COUNT}}
+                                            </label>
+                                        </dt>
+                                    </dl>
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <div class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px;">
+
+                            <div class="form-group">
+                                <div class="col-xs-12 col-md-12">
+                                    过滤器2
+                                    <input type="text" v-model="filter2" class="form-control" placeholder="a&b@@c|d    &组￥取非">
+                                </div>
+                                <div class="col-xs-12 col-md-9">
+                                    过滤器
+                                    <input type="text" v-model="filter" class="form-control" placeholder="a&b@@c|d    &组￥取非">
+                                </div>
+                                <div class="col-xs-12 col-md-3">
+                                    短期趋势
+                                    <input class="form-control" list="Whole_ShortTrendId" v-model="Whole_ShortTrend_Sifter" @@click="ClearWhole_ShortTrend_Sifter" @@change="filterFunction()" placeholder="趋势过滤清空后，可以输入空格" />
+                                    <datalist id="Whole_ShortTrendId">
+                                        <option v-for="item in Whole_ShortTrend">{{item}}</option>
+                                    </datalist>
+                                </div>
+                                <div class="col-xs-12 col-md-3">
+                                    5日涨幅
+                                    <input type="text" v-model="Section_ThisStock_5DayUp" class="form-control">
+                                </div>
+                                <div class="col-xs-12 col-md-3">
+                                    1月涨幅
+                                    <input type="text" v-model="Section_ThisStock_1DayUp" class="form-control">
+
+                                </div>
+                                <div class="col-xs-12 col-md-3">
+                                    行业排名
+                                    <input type="text" v-model="Section_Section_Rank" class="form-control">
+                                </div>
+                                <div class="col-xs-12 col-md-3">
+                                    中期趋势
+                                    <input class="form-control" list="Whole_MiddleTrendId" v-model="Whole_MiddleTrend_Sifter" @@click="ClearWhole_MiddleTrend_Sifter" @@change="filterFunction()" placeholder="趋势过滤清空后，可以输入空格" />
+                                    <datalist id="Whole_MiddleTrendId">
+                                        <option v-for="item in Whole_MiddleTrend">{{item}}</option>
+                                    </datalist>
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    整体评分
+                                    <input type="text" v-model="Whole_BeatHowMany" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    技术评分
+                                    <input type="text" v-model="Tec_BeatHowMany" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    资金评分
+                                    <input type="text" v-model="Fund_BeatHowMany" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    消息评分
+                                    <input type="text" v-model="Message_BeatHowMany" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    行业评分
+                                    <input type="text" v-model="Section_BeatHowMany" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    基本面评分
+                                    <input type="text" v-model="Basic_BeatHowMany" class="form-control">
+                                </div>
+
+                                <div class="col-xs-6 col-md-2">
+                                    最近1天
+                                    <input type="text" v-model="Day1Amplitude" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    最近2天
+                                    <input type="text" v-model="Day2Amplitude" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    最近3天
+                                    <input type="text" v-model="Day3Amplitude" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    最近4天
+                                    <input type="text" v-model="Day4Amplitude" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    最近5天
+                                    <input type="text" v-model="Day5Amplitude" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    最近6天
+                                    <input type="text" v-model="Day6Amplitude" class="form-control">
+                                </div>
+
+
+
+                                <div class="col-xs-6 col-md-2">
+                                    最大涨幅
+                                    <input type="text" v-model="MaxAmplitude" class="form-control">
+                                </div>
+
+                                <div class="col-xs-6 col-md-2">
+                                    今日涨幅
+                                    <input type="text" v-model="GainPercent" class="form-control">
+                                </div>
+
+                                <div class="col-xs-6 col-md-2">
+                                    多日涨幅
+                                    <input type="text" v-model="NDayAmplitude" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    与最高差值比例
+                                    <input type="text" v-model="GapPercent" class="form-control">
+                                </div>
+                                <div class="col-xs-6 col-md-2">
+                                    排序
+                                    <input class="form-control" list="Sort" v-model="Sorter" @@change="SortFunction()" @@click="ClearSofter" placeholder="排序字段" />
+                                    <datalist id="Sort">
+                                        <option v-for="item in SortItemList" :value="item.value">{{item.key}}</option>
+                                    </datalist>
+                                </div>
+
+                                <div class="col-xs-6 col-md-2">
+                                    过滤
+                                    <button v-on:click="filterFunction" type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i>过滤</button>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px">
+                            @*<div class="col-xs-12 col-md-12 picture" style="border-bottom:solid 5px #1649e4;margin-bottom:15px">
+                                <div class="col-xs-12 col-md-3 picture">
+                                    <img src="http://image.sinajs.cn/newchart/daily/n/sh000001.gif" style="width:100%;height:200px" />
+                                </div>
+                                <div class="col-xs-12 col-md-3 picture">
+                                    <img src="http://image.sinajs.cn/newchart/weekly/n/sh000001.gif" style="width:100%;height:200px" />
+                                </div>
+                                <div class="col-xs-12 col-md-3 picture">
+                                    <img src="http://image.sinajs.cn/newchart/monthly/n/sh000001.gif" style="width:100%;height:200px" />
+                                </div>
+                                <div class="col-xs-12 col-md-3 picture">
+                                    <img src="http://image.sinajs.cn/newchart/min/n/sh000001.gif" style="width:100%;height:200px" />
+                                </div>
+                            </div>*@
+
+
+                            <div class="col-xs-12 col-md-12 oneStock" v-for="(item,index) in filterStockList">
+                                <div class="col-xs-12 col-md-12 picture">
+                                    <div id="toolbar" class="btn-group">
+
+                                        <button type="button" v-on:click="Show(item.StockNumber,item.StockName,item.TradePlace)" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>操作
+                                        </button>
+                                        <button type="button" v-on:click="deleteL(item.SelfSelectId,item.StockNumber)" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>删除
+                                        </button>
+
+                                        <button type="button" v-on:click="ShowLatest(item.StockNumber,item.RecommendDate,item.StockName)" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>查看
+                                        </button>
+                                        @*id="btn_edit"*@
+                                        <button v-on:click="Modify(item.SelfSelectId)" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+                                        </button>
+
+                                        <a type="button" :href="getStockUrl(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>新浪
+                                        </a>
+                                        <a type="button" :href="getWencai(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>问财
+                                        </a>
+
+                                        <a type="button" :href="addSelectNewWindow(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>同花順
+                                        </a>
+                                        <button v-on:click="addSelect(item.TradePlace,item.StockNumber)" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>+同花順
+                                        </button>
+                                        <button v-on:click="DeleteSelect(item.TradePlace,item.StockNumber)" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>-同花順
+                                        </button>
+                                        <button v-on:click="Sifter($event)" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>条件
+                                        </button>
+                                        <a type="button" :href="getTecParaHistory(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>参数史
+                                        </a>
+                                        <a type="button" :href="getTrendHistory(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>趋势史
+                                        </a>
+                                        @*<button type="button" v-on:click="addSelectWindows(item.StockName,item.StockName)" class="btn btn-default">
+                    <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>查看
+                </button>*@
+                                    </div>
+                                    <div class="col-xs-12 col-md-12 sifter sifterControl">
+                                        <div class="col-xs-12 col-md-12">
+                                            过滤器2
+                                            <input type="text" v-model="filter2" class="form-control" placeholder="a&b@@c|d    &组￥取非">
+                                        </div>
+                                        <div class="col-xs-12 col-md-9">
+                                            过滤器
+                                            <input type="text" v-model="filter" class="form-control" placeholder="a&b@@c|d    &组￥取非">
+                                        </div>
+                                        <div class="col-xs-12 col-md-3">
+                                            短期趋势
+                                            <input class="form-control" list="Whole_ShortTrendId" v-model="Whole_ShortTrend_Sifter" @@click="ClearWhole_ShortTrend_Sifter" @@change="filterFunction()" placeholder="趋势过滤清空后，可以输入空格" />
+                                            <datalist id="Whole_ShortTrendId">
+                                                <option v-for="item in Whole_ShortTrend">{{item}}</option>
+                                            </datalist>
+                                        </div>
+                                        <div class="col-xs-12 col-md-3">
+                                            5日涨幅
+                                            <input type="text" v-model="Section_ThisStock_5DayUp" class="form-control">
+                                        </div>
+                                        <div class="col-xs-12 col-md-3">
+                                            1月涨幅
+                                            <input type="text" v-model="Section_ThisStock_1DayUp" class="form-control">
+
+                                        </div>
+                                        <div class="col-xs-12 col-md-3">
+                                            行业排名
+                                            <input type="text" v-model="Section_Section_Rank" class="form-control">
+                                        </div>
+                                        <div class="col-xs-12 col-md-3">
+                                            中期趋势
+                                            <input class="form-control" list="Whole_MiddleTrendId" v-model="Whole_MiddleTrend_Sifter" @@click="ClearWhole_MiddleTrend_Sifter" @@change="filterFunction()" placeholder="趋势过滤清空后，可以输入空格" />
+                                            <datalist id="Whole_MiddleTrendId">
+                                                <option v-for="item in Whole_MiddleTrend">{{item}}</option>
+                                            </datalist>
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            整体评分
+                                            <input type="text" v-model="Whole_BeatHowMany" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            技术评分
+                                            <input type="text" v-model="Tec_BeatHowMany" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            资金评分
+                                            <input type="text" v-model="Fund_BeatHowMany" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            消息评分
+                                            <input type="text" v-model="Message_BeatHowMany" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            行业评分
+                                            <input type="text" v-model="Section_BeatHowMany" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            基本面评分
+                                            <input type="text" v-model="Basic_BeatHowMany" class="form-control">
+                                        </div>
+
+                                        <div class="col-xs-6 col-md-2">
+                                            最近1天
+                                            <input type="text" v-model="Day1Amplitude" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            最近2天
+                                            <input type="text" v-model="Day2Amplitude" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            最近3天
+                                            <input type="text" v-model="Day3Amplitude" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            最近4天
+                                            <input type="text" v-model="Day4Amplitude" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            最近5天
+                                            <input type="text" v-model="Day5Amplitude" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            最近6天
+                                            <input type="text" v-model="Day6Amplitude" class="form-control">
+                                        </div>
+
+
+                                        <div class="col-xs-6 col-md-2">
+                                            最大涨幅
+                                            <input type="text" v-model="MaxAmplitude" class="form-control">
+                                        </div>
+
+                                        <div class="col-xs-6 col-md-2">
+                                            今日涨幅
+                                            <input type="text" v-model="GainPercent" class="form-control">
+                                        </div>
+
+                                        <div class="col-xs-6 col-md-2">
+                                            多日涨幅
+                                            <input type="text" v-model="NDayAmplitude" class="form-control">
+                                        </div>
+
+                                        <div class="col-xs-6 col-md-2">
+                                            与最高差值比例
+                                            <input type="text" v-model="GapPercent" class="form-control">
+                                        </div>
+
+                                        <div class="col-xs-6 col-md-2">
+                                            排序
+                                            <input class="form-control" list="Sort" v-model="Sorter" @@change="SortFunction()" @@click="ClearSofter" placeholder="排序字段" />
+                                            <datalist id="Sort">
+                                                <option v-for="item in SortItemList" :value="item.value">{{item.key}}</option>
+                                            </datalist>
+                                        </div>
+                                        <div class="col-xs-6 col-md-2">
+                                            过滤
+                                            <button v-on:click="filterFunction" type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i>过滤</button>
+                                        </div>
+                                    </div>
+                                    <div style="float:right;font-weight:bold;margin-left:15px" v-on:click="GoDown()"><span class="glyphicon glyphicon-circle-arrow-down">底部</span></div>
+                                    <div style="float:right;font-weight:bold" v-on:click="GoBack()">{{index}}/{{TotalCount}}&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-circle-arrow-up">顶部</span></div>
+                                    <div><span style="font-weight:bold">备注：</span><span v-html="item.Remark" style="color:red"></span></div>
+
+                                    <div><span style="font-weight:bold">成本：{{item.Cost}}元---收益回测：(1天{{ToFix(item.Day1Profit)}}%)（2天{{ToFix(item.Day2Profit)}}%）（3天{{ToFix(item.Day3Profit)}}%）（4天{{ToFix(item.Day4Profit)}}%）（5天{{ToFix(item.Day5Profit)}}%）（6天{{ToFix(item.Day6Profit)}}%）（7天{{ToFix(item.Day7Profit)}}%）</span></div>
+                                    <div><span style="font-weight:bold">概念：</span><span>{{item.Conception}}</span></div>
+                                    <div><span style="font-weight:bold"><span>{{item.StockName}} <span>{{item.StockNumber}}-----价格：{{item.CurrentPrice}}---涨幅：{{item.GainPercent}}------</span> </span>(分类{{item.Operation}})(最大间隔{{ToFix(item.GapPercent)}})（多天涨幅{{ToFix(item.NDayAmplitude)}}）（一月涨幅{{ToFix(item.Section_ThisStock_1DayUp)}}）</span></div>
+                                </div>
+                                <div class="col-xs-12 col-md-2 picture">
+                                    @*<p class="info">
+                                        <span>{{item.StockName}} </span>
+                                        <span>{{item.Section}}</span>
+                                        <span>成本：{{item.Cost}}</span>
+                                    </p>
+                                    <p class="info">
+                                        <span>{{item.StockNumber}}</span>
+                                        <span>多少：{{item.HowMuch}}</span>
+                                    </p>*@
+                                    <span>日</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'',-3)" style="width:100%;height:200px" />
+                                </div>
+                                    <div class="col-xs-12  col-md-2 picture">
+                                    <span>60分</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'M60',-3)" style="width:100%;height:200px" />
+                                </div>
+                                   <div class="col-xs-12  col-md-2 picture">
+                                       <span>30分</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'M30'，-3)" style="width:100%;height:200px" />
+                                </div>
+                                 <div class="col-xs-12  col-md-2 picture">
+                                    <span>15分</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'M15'，-3)" style="width:100%;height:200px" />
+                                </div>
+                                     <div class="col-xs-12  col-md-2 picture">
+                                        <p class="info" style="font-size:9px">
+                                            <span>整<br />{{item.Whole_BeatHowMany}}</span>
+                                            <span>技<br />{{item.Tec_BeatHowMany}}</span>
+                                            <span>资<br />{{item.Fund_BeatHowMany}}</span>
+                                            <span>消<br />{{item.Message_BeatHowMany}}</span>
+                                            <span>行<br />{{item.Section_BeatHowMany}}</span>
+                                            <span>基<br />{{item.Basic_BeatHowMany}}</span>
+                                        </p>
+                                    <span>周</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'W'，-3)" style="width:100%;height:200px" />
+                                </div>
+                                <div class="col-xs-12  col-md-2 picture">
+                                        <span>月</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'M'，-3)" style="width:100%;height:200px" />
+                                </div>
+                                <div class="col-xs-12  col-md-12 picture">
+                                    <div>{{jsonDateFormat(item.ParaTime)}}<span style="font-weight:bold">参数：</span><span v-html="item.ProcessedPara"></span></div>
+                                </div>
+                                <div class="col-md-12 column table-responsive">
+                                    <table class="table table-condensed table-bordered table-hover text-nowrap">
+                                        <thead style="display:none">
+                                            <tr>
+                                                <th>
+                                                    报告期
+                                                </th>
+                                                <th>
+                                                    净利润(元)
+                                                </th>
+                                                <th>
+                                                    净利润同比(%)
+                                                </th>
+                                                <th>
+                                                    营业收入(元)
+                                                </th>
+                                                <th>
+                                                    营业收入同比(%)
+                                                </th>
+                                                <th>
+                                                    每股收益(元)
+                                                </th>
+                                                <th>
+                                                    每股净资产(元)
+                                                </th>
+                                                <th>
+                                                    每股现金流(元)
+                                                </th>
+                                                <th>
+                                                    净资产收益率(%)
+                                                </th>
+                                                <th>
+                                                    毛利率(%)
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="display:none">
+                                            <tr>
+                                                <td>
+                                                    {{item.Q1_ReportTime}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q1_NetProfit}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q1_NetProfitYOY}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q1_BusinessIncome}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q1_BusinessIncomeYOY}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q1_EarningPerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q1_NetAssetValuePerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q1_CashFlowPerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q1_ReturnOnEquity}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q1_GrossProfitMargin}}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    {{item.Q2_ReportTime}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q2_NetProfit}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q2_NetProfitYOY}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q2_BusinessIncome}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q2_BusinessIncomeYOY}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q2_EarningPerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q2_NetAssetValuePerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q2_CashFlowPerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q2_ReturnOnEquity}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q2_GrossProfitMargin}}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    {{item.Q3_ReportTime}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q3_NetProfit}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q3_NetProfitYOY}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q3_BusinessIncome}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q3_BusinessIncomeYOY}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q3_EarningPerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q3_NetAssetValuePerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q3_CashFlowPerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q3_ReturnOnEquity}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q3_GrossProfitMargin}}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    {{item.Q4_ReportTime}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q4_NetProfit}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q4_NetProfitYOY}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q4_BusinessIncome}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q4_BusinessIncomeYOY}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q4_EarningPerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q4_NetAssetValuePerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q4_CashFlowPerShare}}
+                                                </td>
+                                                <td>
+                                                    {{item.Q4_ReturnOnEquity}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.Q4_GrossProfitMargin}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    总股本
+                                                </th>
+                                                <th>
+                                                    总市值
+                                                </th>
+                                                <th>
+                                                    流通市值
+                                                </th>
+                                                <th>
+                                                    流通比例
+                                                </th>
+                                                <th>
+                                                    市盈率
+                                                </th>
+                                                <th>
+                                                    静态市盈率
+                                                </th>
+                                                <th>
+                                                    市净率
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    {{item.WholeCapital}}亿
+                                                </td>
+                                                <td>
+                                                    {{item.MarketValue}}
+                                                </td>
+                                                <td>
+                                                    {{item.MarketValueOfCirculation}}
+                                                </td>
+                                                <td>
+                                                    {{item.CirculationRatio}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.PERatio}}
+                                                </td>
+                                                <td style="color:red">
+                                                    {{item.StaticPERatio}}
+                                                </td>
+                                                <td>
+                                                    {{item.PriceEarningRatio}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div id="targetDown" class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+@section styles{
+    <style>
+        .picture {
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+
+        .oneStock {
+            border-bottom: dashed 10px #0094ff;
+            margin-bottom: 20px;
+            
+        }
+        .icon-checked {
+            color: red;
+        }
+        .info {
+            padding-left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0px;
+        }
+        .sifter {
+            display: none;
+        }
+        .descpription {
+        }
+    </style>
+}
+
+
+@section scripts{
+    <script type="text/javascript">
+        var app = new Vue({
+            el: '#app',
+            data: {
+                datemin: '',
+                datemax: '',
+                stockList: [],
+                filterStockList: [],
+                FavorType: '收藏',
+                flag: true,
+                TotalCount: '',
+                serverNumber:'',
+                filter: '',
+                filter2: '',
+                filterStockList: [],
+                DateList: [],
+                OperationList: [],
+                CheckOperationList:[],
+                stock: '',
+
+                Whole_MiddleTrend: [],
+                Whole_MiddleTrend_Sifter: '',
+                Whole_ShortTrend: [],
+                Whole_ShortTrend_Sifter: '',
+                
+
+                Section_ThisStock_5DayUp: ">=-1000,<=1000",
+                Section_ThisStock_1DayUp: ">=-1000,<=1000",
+                Section_Section_Rank: ">=-100,<=1000",
+                Whole_BeatHowMany: ">=0,<=100",
+                Tec_BeatHowMany: ">=0,<=100",
+                Fund_BeatHowMany: ">=0,<=100",
+                Message_BeatHowMany: ">=0,<=100",
+                Section_BeatHowMany: ">=0,<=100",
+                Basic_BeatHowMany: ">=0,<=100",
+
+                MaxAmplitude: ">=-12,<=12",
+                GainPercent: ">=-12,<=12",
+                NDayAmplitude: ">=-50,<=100",
+
+                Day1Amplitude: ">=-11,<=11",
+                Day2Amplitude: ">=-11,<=11",
+                Day3Amplitude: ">=-11,<=11",
+                Day4Amplitude: ">=-11,<=11",
+                Day5Amplitude: ">=-11,<=11",
+                Day6Amplitude: ">=-11,<=11",
+                Day7Amplitude: ">=-11,<=11",
+                GapPercent: ">=-20,<=40",
+
+                SortItemList: [{ "key": "最大间隔", "value": "GapPercent" }, { "key": "N天最大涨幅", "value": "NDayAmplitude" }, { "key": "今日涨幅", "value": "GainPercent" }, { "key": "持股1日涨幅", "value": "Day1Profit" }, { "key": "持股2日涨幅", "value": "Day2Profit" }, { "key": "持股3日涨幅", "value": "Day3Profit" }, { "key": "持股4日涨幅", "value": "Day4Profit" }, { "key": "持股5日涨幅", "value": "Day5Profit" }, { "key": "持股6日涨幅", "value": "Day6Profit" }, { "key": "持股7日涨幅", "value": "Day7Profit" }],
+                Sorter:"",
+
+                SelfSelectTxt:"http://pop.10jqka.com.cn/getselfstockinfo.php?jsonp=callback1603752149367&callback=callback1603752149367&_=1603752149369",
+
+
+                BuySell:"",
+
+                SectionList: ["电气设备-200", "化学制品-190", "计算机应用-168", "专用设备-159", "传媒-141", "汽车零部件-130", "通用设备-124", "建筑装饰-122", "房地产开发-117", "化学制药-105", "通信设备-99", "有色冶炼加工-85", "半导体及元件-78", "医疗器械服务-77", "零售-76", "电力-75", "化工合成材料-73", "家用轻工-68", "光学光电子-68", "建筑材料-68", "中药-66", "国防军工-61", "电子制造-59", "食品加工制造-56", "环保工程-55", "服装家纺-54", "基础化学-50", "白色家电-49", "物流-44", "证券-43", "计算机设备-43", "饮料制造-42", "燃气水务-40", "保险及其他-35", "煤炭开采加工-35", "包装印刷-35", "通信服务-34", "其他电子-34", "农产品加工-34", "银行-33", "生物制品-33", "钢铁-32", "纺织制造-31", "仪器仪表-31", "新材料-30", "港口航运-29", "综合-27", "公路铁路运输-25", "医药商业-25", "贸易-25", "汽车整车-24", "景点及旅游-22", "非汽车交运-22", "种植业与林业-21", "造纸-20", "养殖业-19", "采掘服务-16", "化工新材料-15", "机场航运-12", "视听器材-11", "园区开发-11", "石油矿业开采-11", "交运设备服务-11", "农业服务-9", "公交-9", "酒店及餐饮-8", "， 暂无相关评论。-2"],
+                width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+                height: window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+            },
+            mounted: function () {
+                var _self = this;
+                _self.$nextTick(function () {
+                    //显示active
+                    _self.$refs.StockSelfSelectView.parentNode.parentNode.classList.add("active");
+                    _self.$refs.StockSelfSelectView.classList.add("active");
+                    //_self.$refs.datemin.value = _self.getNow();
+                    //_self.$refs.datemax.value = _self.getNow();
+                    _self.GetDateList();
+                    _self.GetOperationList();
+                    _self.$refs.datemin.value = _self.getLastYearMonthLast();
+                    _self.$refs.datemax.value = _self.getCurrentMonthLast();
+
+                    var iframe = document.getElementById("myFrame");
+                    if (iframe.attachEvent) {
+                        iframe.attachEvent("onload", function () {
+                            layer.msg("执行完成！", { icon: 1, time: 1000 });
+                            setTimeout(function () {
+                                yui.layer_close3();
+                            }, 500);
+                        });
+                    } else {
+                        iframe.onload = function () {
+                            layer.msg("执行完成！", { icon: 1, time: 1000 });
+                            setTimeout(function () {
+                                yui.layer_close3();
+                            }, 500);
+                        };
+                    }
+
+
+
+                    $('#datemin').datetimepicker({
+                        format: 'yyyy-mm-dd',
+                        minView: 2,
+                        autoclose: true,
+                        language: "en-us",
+                        pickerPosition: 'top-right'
+                    });
+                    $('#datemax').datetimepicker({
+                        format: 'yyyy-mm-dd',
+                        minView: 2,
+                        autoclose: true,
+                        language: "en-us",
+                        pickerPosition: 'top-right'
+                    });
+                    setTimeout(function () {
+                        //_self.searchL();
+                    }, 500);
+                });
+            },
+            watch: {
+
+            },
+            methods: {
+                Sifter: function (e) {
+                    $(e.target).parents(".picture").children(".sifterControl").toggleClass("sifter");
+                },
+                getTrend: function (stockList) {
+                    var _self = this;
+                    _self.Whole_MiddleTrend = [];
+                    _self.Whole_ShortTrend = [];
+                    stockList.forEach(function (item, index) {
+                        if (_self.Whole_MiddleTrend.indexOf(item.Whole_MiddleTrend) == -1) {
+                            _self.Whole_MiddleTrend.push(item.Whole_MiddleTrend);
+                        }
+                        if (_self.Whole_ShortTrend.indexOf(item.Whole_ShortTrend) == -1) {
+                            _self.Whole_ShortTrend.push(item.Whole_ShortTrend);
+                        }
+
+
+                    });
+                },
+                ToFix: function (value) {
+                    var res = "";
+                    try {
+                        res = value.toFixed(1); 
+                    } catch (e) {
+                        res = value;
+                        console.log(value);
+                    }
+                    return res
+                },
+                   GoDown: function() {
+                    targetDown.scrollIntoView();
+                },
+                ClearWhole_ShortTrend_Sifter: function () {
+                    var _self = this;
+                    _self.Section = '';
+                    _self.Whole_ShortTrend_Sifter = '';
+                    _self.filterFunction();
+                },
+                ClearWhole_MiddleTrend_Sifter: function () {
+                    var _self = this;
+                    _self.Section = '';
+                    _self.Whole_MiddleTrend_Sifter = '';
+                    _self.filterFunction();
+                },
+                GoBack: function () {
+                    target.scrollIntoView();
+                },
+                  SortFunction: function () {
+                    var _self = this;
+                    _self.sortKey(_self.filterStockList,_self.Sorter);
+                 
+                },
+                sortKey: function (array,key) {
+                      return array.sort(function(a,b){
+                          var x = a[key];
+                          var y = b[key];
+                          return ((y<x)?-1:(x>y)?1:0)   //从小到大排序
+                    })
+                },
+                
+               ClearSofter: function () {
+                   var _self = this;
+                    _self.Sorter = '';
+                },
+
+                checkIfSell: function (BuyTime,SellTime) {
+                    var _self = this;
+                    var buyTemp = _self.jsonDateFormat(BuyTime);
+                    var sellTemp = _self.jsonDateFormat(SellTime);
+                    var buy_time = (new Date(buyTemp)).getTime();
+                    var sell_time = (new Date(sellTemp)).getTime();
+                    //timeDiff1 = parseInt(buy_time - d1) / 1000;//两个时间相差的秒数
+                    timeDiff1 = parseInt(buy_time - sell_time);
+                    if (_self.BuySell == "") {
+                        return 1;
+                    } else{
+                        if (timeDiff1 > 0 && _self.BuySell == "买") {
+                            return 1;
+                        } else if (timeDiff1 <= 0 && _self.BuySell == "卖") {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                   
+                },
+
+                filterFunction: function () {
+                    var _self = this;
+                    if (_self.filter == "" && _self.filter2 == "") {
+                        _self.filterStockList = [];
+                        if (typeof (_self.stockList) != "undefined") {
+                            _self.stockList.forEach(function (item, index) {
+                                flagScore = 0;
+                                flagContain = 0;
+                                //分数检查
+                                if (_self.CheckScore(item.Section_ThisStock_5DayUp, _self.Section_ThisStock_5DayUp)
+                                    && _self.CheckScore(item.Section_ThisStock_1DayUp, _self.Section_ThisStock_1DayUp)
+                                    && _self.CheckScore(item.Section_Section_Rank, _self.Section_Section_Rank)
+                                    && _self.CheckScore(item.Whole_BeatHowMany, _self.Whole_BeatHowMany)
+                                    && _self.CheckScore(item.Tec_BeatHowMany, _self.Tec_BeatHowMany)
+                                    && _self.CheckScore(item.Fund_BeatHowMany, _self.Fund_BeatHowMany)
+                                    && _self.CheckScore(item.Message_BeatHowMany, _self.Message_BeatHowMany)
+                                    && _self.CheckScore(item.Section_BeatHowMany, _self.Section_BeatHowMany)
+                                    && _self.CheckScore(item.Basic_BeatHowMany, _self.Basic_BeatHowMany)
+                                    && _self.CheckScore(item.MaxAmplitude, _self.MaxAmplitude)
+                                    && _self.CheckScore(item.GainPercent, _self.GainPercent)
+                                    && _self.CheckScore(item.NDayAmplitude, _self.NDayAmplitude)
+                                    && _self.CheckScore(item.Day1Amplitude, _self.Day1Amplitude)
+                                    && _self.CheckScore(item.Day2Amplitude, _self.Day2Amplitude)
+                                    && _self.CheckScore(item.Day3Amplitude, _self.Day3Amplitude)
+                                    && _self.CheckScore(item.Day4Amplitude, _self.Day4Amplitude)
+                                    && _self.CheckScore(item.Day5Amplitude, _self.Day5Amplitude)
+                                    && _self.CheckScore(item.Day6Amplitude, _self.Day6Amplitude)
+                                    && _self.CheckScore2(item.GapPercent, _self.GapPercent)
+
+                                    //&& _self.CheckScore(item.HighDay, _self.HighDay)
+                                ) {
+                                    flagScore = 1;
+                                }
+                                var content = _self.GetProperty(item);
+                                flagContain = _self.CheckExist(content, _self.Whole_MiddleTrend_Sifter) && _self.CheckExist(content, _self.Whole_ShortTrend_Sifter)
+                                if (flagScore && flagContain) {
+                                    _self.filterStockList.push(item);
+                                }
+                            });
+                            _self.TotalCount = _self.filterStockList.length;
+
+                            console.log(_self.Whole_MiddleTrend);
+                        }
+                        return;
+                    }
+
+                    var and = [];
+                    if (_self.filter.indexOf("&") != -1) {
+                        and = _self.filter.split("@@")[0].split("&");
+                    } else {
+                        var temp = _self.filter.split("@@")[0];
+                        if (temp != '') {
+                            and.push(temp);
+                        }
+                    }
+
+
+                    var and2 = [];
+                    if (_self.filter2.indexOf("&") != -1) {
+                        and2 = _self.filter2.split("@@")[0].split("&");
+                    } else {
+                        var temp2 = _self.filter2.split("@@")[0];
+                        if (temp2 != '') {
+                            and2.push(temp2);
+                        }
+                    }
+
+                    //if (_self.filter2.indexOf("&") != -1) {
+                    //    andfilter2 = _self.filter2.split("@@")[0].split("&");
+                    //    and = andfilter2.concat(and);
+
+                    //} else {
+                    //    var temp = _self.filter2.split("@@")[0];
+                    //    if (temp != '') {
+                    //        and.push(temp);
+                    //    }
+                    //}
+
+                    var or = [];
+                    if (_self.filter.indexOf("|") != -1) {
+                        or = _self.filter.split("@@")[1].split("|");
+                    } else {
+                        var temp = _self.filter.split("@@")[1];
+                        if (temp != '') {
+                            or.push(temp);
+                        }
+                    }
+
+                    var or2 = [];
+                    if (_self.filter2.indexOf("|") != -1) {
+                        or2 = _self.filter2.split("@@")[1].split("|");
+                    } else {
+                        var temp2 = _self.filter2.split("@@")[1];
+                        if (temp2 != '') {
+                            or2.push(temp2);
+                        }
+                    }
+                    _self.filterStockList = [];
+                    _self.stockList.forEach(function (item, index) {
+                        flagAnd = 1;
+                        flagOr = 0;
+                        flagAnd2 = 1;
+                        flagOr2 = 0;
+                        flagScore = 0;
+                        flagContain = 0;
+                        var content = _self.GetProperty(item);
+                        and.forEach(function (anditem, index) {
+                            //只要一个不存在就不行
+
+                            if (anditem.indexOf("￥") != -1) {
+                                anditemProcessed = anditem.replace(/￥/g, "");
+                                if (content.indexOf(anditemProcessed) != -1)
+                                    flagAnd = 0;
+                            } else {
+                                if (content.indexOf(anditem) == -1)
+                                    flagAnd = 0;
+                            }
+                        });
+
+                        or.forEach(function (oritem, index) {
+                            //只要存在一个就好
+                            if (content.indexOf(oritem) != -1)
+                                flagOr = 1;
+                        });
+                        if (or.length <= 0) {
+                            flagOr = 1;
+                        }
+                        if (_self.filter == '') {
+                            flagOr = 1;
+                            flagAnd = 1;
+                        }
+
+
+                        and2.forEach(function (anditem, index) {
+                            //只要一个不存在就不行
+
+                            if (anditem.indexOf("￥") != -1) {
+                                anditemProcessed2 = anditem.replace(/￥/g, "");
+                                if (content.indexOf(anditemProcessed2) != -1)
+                                    flagAnd2 = 0;
+                            } else {
+                                if (content.indexOf(anditem) == -1)
+                                    flagAnd2 = 0;
+                            }
+                        });
+
+                        or2.forEach(function (oritem, index) {
+                            //只要存在一个就好
+                            if (content.indexOf(oritem) != -1)
+                                flagOr2 = 1;
+                        });
+                        if (or2.length <= 0) {
+                            flagOr2 = 1;
+                        }
+
+                        if (_self.filter2 == '') {
+                            flagOr2 = 1;
+                            flagAnd2 = 1;
+                        }
+
+                        //分数检查
+                        if (_self.CheckScore(item.Section_ThisStock_5DayUp, _self.Section_ThisStock_5DayUp)
+                            && _self.CheckScore(item.Section_ThisStock_1DayUp, _self.Section_ThisStock_1DayUp)
+                            && _self.CheckScore(item.Section_Section_Rank, _self.Section_Section_Rank)
+                            && _self.CheckScore(item.Whole_BeatHowMany, _self.Whole_BeatHowMany)
+                            && _self.CheckScore(item.Tec_BeatHowMany, _self.Tec_BeatHowMany)
+                            && _self.CheckScore(item.Fund_BeatHowMany, _self.Fund_BeatHowMany)
+                            && _self.CheckScore(item.Message_BeatHowMany, _self.Message_BeatHowMany)
+                            && _self.CheckScore(item.Section_BeatHowMany, _self.Section_BeatHowMany)
+                            && _self.CheckScore(item.Basic_BeatHowMany, _self.Basic_BeatHowMany)
+                            && _self.CheckScore(item.MaxAmplitude, _self.MaxAmplitude)
+                            && _self.CheckScore(item.GainPercent, _self.GainPercent)
+                            && _self.CheckScore(item.NDayAmplitude, _self.NDayAmplitude)
+                            && _self.CheckScore(item.Day1Amplitude, _self.Day1Amplitude)
+                            && _self.CheckScore(item.Day2Amplitude, _self.Day2Amplitude)
+                            && _self.CheckScore(item.Day3Amplitude, _self.Day3Amplitude)
+                            && _self.CheckScore(item.Day4Amplitude, _self.Day4Amplitude)
+                            && _self.CheckScore(item.Day5Amplitude, _self.Day5Amplitude)
+                            && _self.CheckScore(item.Day6Amplitude, _self.Day6Amplitude)
+                            && _self.CheckScore2(item.GapPercent, _self.GapPercent)
+                            //&& _self.CheckScore(item.HighDay, _self.HighDay)
+                        ) {
+                            flagScore = 1;
+                        }
+
+
+                        flagContain = _self.CheckExist(content, _self.Whole_MiddleTrend_Sifter) && _self.CheckExist(content, _self.Whole_ShortTrend_Sifter)
+
+                        if (flagAnd && flagOr && flagAnd2 && flagOr2 && flagScore && flagContain) {
+                            _self.filterStockList.push(item);
+                        }
+                    });
+                    _self.TotalCount = _self.filterStockList.length;
+                },
+
+
+
+                CheckScore: function (score, condition) {
+                    var temp = condition.replace(/>=/g, "").replace(/<=/g, "").split(',');
+                    var a = temp[0];
+                    var b = temp[1];
+                    if (score >= Number(temp[0]) && score <= Number(temp[1])) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                },
+
+                CheckScore2: function (score, condition) {
+                    var temp = condition.replace(/>=/g, "").replace(/<=/g, "").split(',');
+                    var a = temp[0];
+                    var b = temp[1];
+                    if (score >= Number(temp[0]) && score <= Number(temp[1])) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                },
+                CheckExist: function (content, condition) {
+                    if (condition == '') {
+                        return true;
+                    }
+                    if (content.indexOf(condition) != -1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                },
+                GetProperty: function (obj) {
+                    var props = "";
+                    // 开始遍历
+                    for (var p in obj) {
+                        // 方法
+                        if (typeof (obj[p]) == "function") {
+                        } else {
+                            // p 为属性名称，obj[p]为对应属性的值
+                            props += p + "=" + obj[p] + "\t";
+                        }
+                    }
+                    // 最后显示所有的属性
+                    return props;
+                },
+                inputSelect: function () {
+                    var _self = this;
+                    _self.FavorType = '';
+                },
+                clearstock: function () {
+                    var _self = this;
+                    _self.stock = '';
+                },
+
+
+                checkAllOperation: function () {
+                    var _self = this;
+                    _self.OperationList.forEach(function (item, index) {
+                        if (_self.CheckOperationList.indexOf(item.Operation) < 0) {
+                            _self.CheckOperationList.push(item.Operation);
+                        }
+                    });
+                },
+                RemoveAllOperation: function () {
+                    var _self = this;
+                    _self.CheckOperationList = [];
+                },
+                addSelect: function (TradePlace, StockNumber) {
+                    var url = 'http://stock.10jqka.com.cn/self.php?stockcode=' + StockNumber + '&op=add&&jsonp=jQuery1830004172045065825136_1595810971471&_=1595811031587';
+                    $('#myFrame').attr('src', url);
+                    //window.open(url);    
+                },
+                addSelectNewWindow: function (TradePlace, StockNumber) {
+                    //var url = 'http://stockpage.10jqka.com.cn/spService/' + StockNumber + '/Header/selfStockAdd';
+                    var url = 'http://stock.10jqka.com.cn/self.php?stockcode=' + StockNumber + '&op=add&&jsonp=jQuery1830004172045065825136_1595810971471&_=1595811031587';
+                    return url;
+                },
+
+                JumpTolist: function () {
+                    var date = new Date();
+                    var time = date.getTime();
+                    var time2 = time + 1;
+                    var url = 'http://pop.10jqka.com.cn/getselfstockinfo.php?jsonp=callback&callback=callback';
+                    $('#myFrame').attr('src', url);
+                    //window.open(url);
+                    //window.open(url, "_parent");
+                },
+
+                DeleteSelect: function (TradePlace, StockNumber) {
+                    var _self = this;
+                    var url = 'http://stock.10jqka.com.cn/self.php?stockcode=' + StockNumber + '&op=del&&jsonp=jQuery1830004172045065825136_1595810971471&_=1595811031587';
+                    $('#myFrame').attr('src', url);
+                    //return url;
+                },
+                GetCount: function (section) {
+                    var _self = this;
+                    var res = "REF"
+                    _self.SectionList.forEach(function (item, index) {
+                        if (item.indexOf(section) != -1) {
+                            res = item.split('-')[1];
+                        }
+                    });
+                    return res;
+                }, 
+                Emphasis: function (content) {
+                    var _self = this;
+                    var array = ['多头', '有所减缓', '非常活跃', '高度活跃', '活跃度一般', '净流出', '流出', '流入', '多方势头较强', '市场关注', '净流入', '涨停', '较为活跃', '筹码较分散', '谨慎', '利好', '一定的筹码', '流进', '投资价值较高', '高度控盘', '没有控盘', '共流入', '重大', '中度控盘', '连续上涨', '运营状况良好', '位', '第', '较多', '上涨概率较大', '超过'];
+                    var res = content;
+                    array.forEach(function (item, index, currentArray) {
+                        //var temp = _self.jsonDateFormat(item.Date).split(' ')[0].split('-')[2];
+                        //_self.DateList.push(temp);
+                        if (content.indexOf(item) >= 0) {
+                            var reg = new RegExp(item, "g");//g,表示全部替换。
+                            res = res.replace(reg, '<span style="color:red;font-weight:bold">' + item + '</span>');
+                            //res = res.replace(reg, '【' + item + '】');
+                        }
+                    });
+                    return res;
+                },
+
+                addSelectWindows: function (StockName, StockNumber) {
+                    var _self = this;
+                    var url = 'http://stockpage.10jqka.com.cn/spService/' + StockNumber + '/Header/selfStockAdd';
+                    yui.layershow(StockName, url, _self.width * 0.8, _self.height * 0.8);
+                },
+                GetOperationList: function () {
+                    var _self = this;
+
+                      var data = {
+                        IsStock: 1,
+                        
+                    };
+                    yui.$axiospostform('/SelfSelect/OperationList', data).then(function (response) {
+                        _self.OperationList = response.data;
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                Refresh: function () {
+                   var _self = this;
+                   var data = {
+                        IsStock: 1,
+                        
+                    };
+                    yui.$axiospostform('/SelfSelect/OperationList', data).then(function (response) {
+                        _self.OperationList = response.data;
+                         layer.msg('刷新成功', { icon: 1, time: 1000 });
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                GetDicList: function () {
+                    var _self = this;
+                    yui.$axiospost('/Dict/GetDicList', null).then(function (response) {
+                        _self.DicList = response.data;
+                        console.info(response.data);
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                GetDateList: function () {
+                    var _self = this;
+                    yui.$axiospost('/Stock/DateList', null).then(function (response) {
+                        var thisdate = response.data;
+                        thisdate.forEach(function (item, index, currentArray) {
+                            var temp = _self.jsonDateFormat(item.Date).split(' ')[0].split('-')[2];
+                            _self.DateList.push(temp);
+                        });
+                        //_self.jsonDateFormat(item)
+                        console.info(_self.DateList);
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                EnableEdit: function () {
+                    var _self = this;
+                    if (_self.flag) {
+                        $(".mytext").attr("readonly", true);
+                        _self.flag = false;
+                    } else {
+                        $(".mytext").attr("readonly", false);
+                        _self.flag = true;
+                    }
+                },
+                ShowLatest: function (stock, date,StockName) {
+                    var _self = this;
+                    var recommenddate = _self.jsonDateFormat(date);
+                    yui.layershow(StockName, "/Stock/LatestInfoView?StockNumber=" + stock + "&Date=" + recommenddate, _self.width * 0.8, _self.height*0.8);
+                },
+                SaveStrategy: function () {
+                    var _self = this;
+                    var data = {
+                        id: _self.Id,
+                        DictName: _self.DictName,
+                        DictType: _self.DictType,
+                        Remark: _self.Remark,
+                        SQL: _self.SQLdisplay
+                    };
+                    yui.$axiospostform('/Dict/AddOrUpdate', data)
+                        .then(function (response) {
+                            if (response.data.Item1 === 101) {
+                                layer.tips(response.data.Item2, '.layui-layer-setwin', {
+                                    tips: [1, '#3595CC'],
+                                    time: 3000
+                                });
+                                layer.close(index);
+                                return false;
+                            }
+                            if (response.data.Item1) {
+                                _self.GetDicList();
+                                layer.msg(response.data.Item2, { icon: 1, time: 1000 });
+                                setTimeout(function () {
+                                    yui.layer_close3();
+                                }, 500);
+                            } else {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                            }
+                        })
+                        .catch(function (error) {
+
+                        });
+                },
+                showL: function () {
+                    var _self = this;
+                    yui.layershow("添加自选", "/SelfSelect/AddManual", _self.width * 0.8, _self.height * 0.8);
+                },
+
+
+                Show: function (StockNumber, StockName, TradePlace) {
+                    var _self = this;
+                    var recommenddate = _self.jsonDateFormat(Date);
+                    yui.$axiosget('/SelfSelect/AskIfAddedToday?StockNumber=' + StockNumber)
+                        .then(function (response) {
+                            if (response.data.Item1) {
+                                var index = layer.confirm(response.data.Item2 + "。确认新增修改?", { btn: ["确认", "取消"] }, function () {
+                                    layer.close(index);
+                                    yui.layershow("添加自选", "/SelfSelect/Add?IsStock=1&StockNumber=" + StockNumber + "&StockName=" + StockName + "&TradePlace=" + TradePlace, _self.width * 0.8, _self.height * 0.8);
+                                }, function () {
+                                });
+
+                            } else {
+                                yui.layershow("添加自选", "/SelfSelect/Add?IsStock=1&StockNumber=" + StockNumber + "&StockName=" + StockName + "&TradePlace=" + TradePlace, _self.width * 0.8, _self.height * 0.8);
+                            }
+                        })
+                        .catch(function (error) {
+                            layer.msg(error.message, { icon: 5 });
+                        });
+                },
+                searchL: function () {
+                    var _self = this;
+                    var data = {
+                        datemin: _self.$refs.datemin.value,
+                        datemax: _self.$refs.datemax.value,
+                        FavorType: _self.FavorType,
+                        stock: _self.stock,
+                        CheckOperationList: _self.CheckOperationList,
+                    };
+                    $("#Indicator").css({ "background": "#f39c12" });
+                    yui.$axiospostform('/Stock/GetSelfSelectView', data).then(function (response) {
+                        _self.stockList = response.data;
+                        console.log(_self.stockList);
+                        _self.filterStockList = _self.stockList;
+                        _self.serverNumber = _self.stockList.length;
+                        _self.getTrend(_self.stockList);
+                        _self.TotalCount = _self.filterStockList.length;
+                        $("#Indicator").css({ "background": "#7bd4d4" });
+
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                searchSimple: function () {
+                    var _self = this;
+                    var data = {
+                        datemin: _self.$refs.datemin.value,
+                        datemax: _self.$refs.datemax.value,
+                        FavorType: _self.FavorType,
+                        stock: _self.stock,
+                        CheckOperationList: _self.CheckOperationList,
+                    };
+                    $("#Indicator").css({ "background": "#f39c12" });
+                    yui.$axiospostform('/Stock/GetSelfSelectViewSimple', data).then(function (response) {
+                        _self.stockList = response.data;
+                        console.log(_self.stockList);
+                        _self.filterStockList = _self.stockList;
+                        _self.serverNumber = _self.stockList.length;
+                        _self.getTrend(_self.stockList);
+                        _self.TotalCount = _self.filterStockList.length;
+                        $("#Indicator").css({ "background": "#7bd4d4" });
+
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                
+                getImgUrl: function (place, number, lenth ,scale) {
+                    var flag="0."
+                    if (place == 'sz') {
+                        flag = "0.";
+                    } else {
+                        flag = "1.";
+                    }
+                    var url="http://webquoteklinepic.eastmoney.com/GetPic.aspx?nid="+flag+number+"&UnitWidth="+scale+"&imageType=KXL&EF=&Formula=RSI&AT=1&&type="+lenth;
+                    return url;
+                },
+                getWeekImgUrl: function (place, number, lenth) {
+                    var url = "http://image.sinajs.cn/newchart./weekly/n/" + place + number + ".gif";
+                    return url;
+                },
+                getMonthImgUrl: function (place, number, lenth) {
+                    var url = "http://image.sinajs.cn/newchart/monthly/n/" + place + number + ".gif";
+                    return url;
+                },
+                getMinImgUrl: function (place, number, lenth) {
+                    var url = "http://image.sinajs.cn/newchart/min/n/" + place + number + ".gif";
+                    return url;
+                },
+                getStockUrl: function (place, number, lenth) {
+                    var url = "https://finance.sina.com.cn/realstock/company/" + place + number + "/nc.shtml";
+                    return url;
+                },
+                getTecParaHistory: function (place, number, lenth) {
+                    var url = "/Stock/QueryInfoTecPara?StockNumber=" + number;
+                    return url;
+                },
+                    getTrendHistory: function (place, number, lenth) {
+                    var url = "/Stock/QueryInfo?StockNumber=" + number;
+                    return url;
+                },
+                getWencai: function (place, number, lenth) {
+                    var url = "http://www.iwencai.com/stockpick/search?w=" + number + "#right_nav_62";
+                    return url;
+                },
+                //item.StockNumber, item.StockName, item.TradePlace, item.Date
+                editL: function (StockNumber, StockName, TradePlace, Date) {
+                    var _self = this;
+                    var recommenddate = _self.jsonDateFormat(Date);
+
+                    yui.$axiosget('/SelfSelect/AskIfAddedToday?StockNumber=' + StockNumber)
+                        .then(function (response) {
+                            if (response.data.Item1) {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                            } else {
+                                yui.layershow("添加自选", "/SelfSelect/Add?StockNumber=" + StockNumber + "&StockName=" + StockName + "&TradePlace=" + TradePlace + "&Date=" + recommenddate, _self.width * 0.8, _self.height * 0.8);
+                            }
+                        })
+                        .catch(function (error) {
+                            layer.msg(error.message, { icon: 5 });
+                        });
+                },
+                Modify: function (SelfSelectId) {
+                    var _self = this;
+                        var index = layer.confirm("您确定要修改吗？", { btn: ["确定", "取消"] }, function () {
+                            layer.close(index);
+                            var id = SelfSelectId;
+                            yui.layershow("修改自选", "/SelfSelect/AddManual?id=" + id, _self.width * 0.8, _self.height * 0.8);
+                        }, function () {
+
+                        });
+                  
+                },
+                deleteL: function (id,stockNumber) {
+                    var _self = this;
+
+                        var index = layer.confirm("您确定要删除吗？", { btn: ["确定", "取消"] }, function () {
+                            yui.$axiosget('/SelfSelect/Delete?id=' + id)
+                                .then(function (response) {
+                                    if (response.data.Item1) {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                                        //_self.searchL();
+                                        _self.RemoveFromList(stockNumber);
+                                    } else {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                                    }
+                                })
+                                .catch(function (error) {
+                                    layer.msg(error.message, { icon: 5 });
+                                });
+                            layer.close(index);
+                        });
+                  
+                },
+
+                RemoveFromList: function (stockNumber) {
+                    var _self = this;
+                    var filterStockListNew = [];
+                    var stockListNew = [];
+                    _self.filterStockList.forEach(function (item, index) {
+                        if (item.StockNumber != stockNumber) {
+                            filterStockListNew.push(item);
+                        }
+                    });
+                    _self.filterStockList = filterStockListNew;
+                    console.log(_self.filterStockList.length);
+
+
+                    _self.stockList.forEach(function (item, index) {
+                        if (item.StockNumber != stockNumber) {
+                            stockListNew.push(item);
+                        }
+                    });
+                    _self.stockList = stockListNew;
+                    console.log(_self.stockList.length);
+
+                    //_self. = _self.stockList;
+                },
+                deleteOperation: function () {
+                    var _self = this;
+                    var index = layer.confirm("您确定要删除该分类全部吗？", { btn: ["确定", "取消"] }, function () {
+                        var data = {
+                            CheckOperationList: _self.CheckOperationList,
+                        };
+                        yui.$axiospostform('/SelfSelect/DeleteSelectOperation', data).then(function (response) {
+                            if (response.data.Item1) {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                                _self.Refresh();
+                            } else {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                            }
+
+                        }).catch(function (error) {
+                            console.info(error);
+                        });
+                    });
+                },
+                  GetTonghuashunList: function () {
+                    var _self = this;
+                      var text = _self.SelfSelectTxt;
+                      var hash = [];
+
+                      var re = /\D(\d{6})\D/g;
+                      var r = "";
+                      while (r = re.exec(text)) {
+                          hash.push(r[1]);
+                      } 
+                      var codeList = [];
+                      for (var i = 0; i < hash.length; i++) {
+                          if (codeList.indexOf(hash[i]) == -1) {
+                              codeList.push(hash[i]);
+                          }
+                      }
+                    var data = {
+                        CodeList: codeList,
+                        IsStock:1
+                    };
+                    yui.$axiospostform('/SelfSelect/AddSelfList', data).then(function (response) {
+                        if (response.data.Item1) {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                            _self.Refresh();
+                        } else {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                        }
+
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+
+                },
+
+
+
+                ChangeNameGroup: function () {
+                    var _self = this;
+                    layer.prompt({ title: '分组', formType: 2 }, function (text, index) {
+                        var data = {
+                            OperationName: text,
+                        };
+                        yui.$axiospostform('/SelfSelect/ChangeName', data)
+                            .then(function (response) {
+                        if (response.data.Item1) {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                            _self.Refresh();
+                            setTimeout(function () {
+                                yui.layer_close3();
+                            }, 500);
+                            layer.msg('保存成功！');
+                        } else {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                        }
+                            })
+                            .catch(function (error) {
+                                layer.msg('保存失败！');
+                            });
+                        layer.close(index);
+                    });
+                  
+                },
+                //GetTonghuashunList: function () {
+                //    var _self = this;
+
+                //    var regex1 = "\\((.+?)\\)"; 
+                //    var str = _self.SelfSelectTxt.match(regex1)[1];
+                //    //str =str.replace(/\(|)/g, '');
+                //    var dataList = JSON.parse(str); 
+
+                //    var data = {
+                //        CodeList: dataList,
+                //        IsStock:1
+                //    };
+                //    yui.$axiospostform('/SelfSelect/AddSelfList', data).then(function (response) {
+                //        if (response.data.Item1) {
+                //            layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                //            _self.Refresh();
+                //        } else {
+                //            layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                //        }
+
+                //    }).catch(function (error) {
+                //        console.info(error);
+                //    });
+
+                //}
+            }
+        });
+    </script>
+}
+

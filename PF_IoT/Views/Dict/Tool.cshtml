@@ -1,0 +1,262 @@
+﻿<div class="content-wrapper">
+    <section class="content-header">
+        <h1>
+            转换
+            <small>自选</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li><a href="#">系统管理</a></li>
+            <li class="active">数据字典</li>
+        </ol>
+    </section>
+    <section class="content">
+        <div class="row" style="padding-bottom:1px;">
+            <div class="col-md-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">搜索条件</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" id="test" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                     
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-body">
+                        @*<div id="toolbar" class="btn-group">
+                            <button id="btn_add" v-on:click="Generate" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>生成
+                            </button>
+                        </div>*@
+
+                        <div id="toolbar" class="btn-group">
+                            <button id="btn_add" v-on:click="UpdateTrasactionInfo" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>保存文本
+                            </button>
+                        </div>
+
+                        <div id="toolbar" class="btn-group">
+                            <button id="btn_add" v-on:click="UpdateProcedure" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>更新命令
+                            </button>
+                        </div>
+
+                        <div id="toolbar" class="btn-group">
+                            <button id="btn_add" v-on:click="DeletAllProcedure" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>删除命令
+                            </button>
+                        </div>
+
+                        @*<div id="toolbar" class="btn-group">
+            <button id="btn_add" v-on:click="GetTransactionInfo" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>获取
+            </button>
+        </div>*@
+
+                    </div>
+                    <div class="col-xs-12 col-md-6" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px">
+                        <textarea v-model="content" class="form-control" rows="20" placeholder="name-content"></textarea>
+                    </div>
+                    <div class="col-xs-12 col-md-6" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px">
+                        <textarea v-model="template" class="form-control" rows="20" placeholder="abcd@1efg@2"></textarea>
+                    </div>
+
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        var app = new Vue({
+            el: '#app',
+            data: {
+                content:'',
+                template:'',
+                width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+                height: window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+            },
+            mounted: function () {
+                var _self = this;
+                _self.$nextTick(function () {
+                    _self.$refs.DictTool.parentNode.parentNode.classList.add("active");
+                    _self.$refs.DictTool.classList.add("active");
+                    _self.GetTransactionInfo();
+                    setTimeout(function () {
+                      
+                        //yui.getDomById("test").click();
+                        //$("div[class='pull-right search']")[0].children[0].setAttribute("placeholder", "字典名称");
+                    }, 500);
+                });
+            },
+            methods: {
+                Generate: function() {
+                    _self = this;
+                    var filetemplates = JSON.parse(_self.template);
+                    var commands = JSON.parse(_self.content);
+                    var res = "";
+                    filetemplates.forEach(function (filetemplate, index) {
+                        res = "";
+                        commands.forEach(function (command, index) {
+
+                            if (command.exclude.indexOf(filetemplate.name) != -1) {
+                                return; 
+                            }
+                            var text = filetemplate.template.replace(/#1/g, command.name);
+                                 text = text.replace(/#2/g, command.content);
+                                 res = res + text + "\n";
+                        }
+                      );
+                        _self.SaveFile(filetemplate.name,res);
+                    });
+　　            },
+                UpdateTrasactionInfo: function () {
+                    var _self = this;
+                    var data = {
+                        content: _self.content,
+                        template: _self.template
+                    };
+                    yui.$axiospostform('/Dict/UpdateTransactionInfo', data).then(function (response) {
+                        if (response.data.Item1) {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                            _self.GetTransactionInfo();
+                        } else {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                        }
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+
+                },
+
+                GetTransactionInfo: function () {
+                    var _self = this;
+                    yui.$axiospostform('/Dict/GetTransactionInfo', null).then(function (response) {
+                        _self.content = response.data.content;
+                        _self.template = response.data.template;
+
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+
+                },
+                SaveFile: function (name, data) {
+                      _self = this;
+                    var urlObject = window.URL || window.webkitURL || window;
+                    var export_blob = new Blob([data]);
+                    var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+　　　　            save_link.href = urlObject.createObjectURL(export_blob);
+　　　　            save_link.download = name;
+　　　　            _self.fakeClick(save_link);
+                },
+
+                fakeClick: function (obj) { 
+                    _self = this;
+       　　       var ev = document.createEvent("MouseEvents");
+　　　　            ev.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+　　　　            obj.dispatchEvent(ev);
+                },
+                 GetDeleteSentense: function (name) { 
+                     var list = "Get5DaysQualified,GetNdaysQualified,GetTodayQualified";
+                     switch (name) {
+                         case "Get5DaysQualified":
+                             return "delete from stockqualified where siftType REGEXP '.*5day.*';" + "\n";
+                         case "GetNdaysQualified":
+                             return "delete from stockqualified where siftType REGEXP '.*Nday.*';"+ "\n";
+                         case "GetTodayQualified":
+                             return "delete from stockqualified where siftType REGEXP '.*Today.*';" + "\n";
+
+                     }
+                     return "";
+                    
+                },
+                   UpdateProcedure: function () {
+                       var _self = this;
+                       var pros = [];
+                       _self.UpdateTrasactionInfo();
+                    var filetemplates = JSON.parse(_self.template);
+                    var commands = JSON.parse(_self.content);
+                       var res = "";
+                       var name=""
+                       filetemplates.forEach(function (filetemplate, index) {
+                           name = filetemplate.name + "";
+                              res = "";
+                        //res =res+ `DROP PROCEDURE IF EXISTS ${name}` + "\n";
+                        //res =res+ `DELIMITER $$` + "\n";
+
+                          res = res + `CREATE PROCEDURE ${name} (in begin Date,in end Date)` + "\n";
+                        res = res + "Begin" + "\n";
+                        res = res+ _self.GetDeleteSentense(filetemplate.name);
+                           commands.forEach(function (command, index) {
+                               if (command.exclude.indexOf(filetemplate.name) != -1 || command.enable == false) {
+                                return; 
+                            }
+                            var text = filetemplate.template.replace(/#1/g, command.name);
+                                 text = text.replace(/#2/g, command.content);
+                                 res = res + text + "\n";
+                        }
+                      );
+                        res = res + "End" + "\n";
+                        pros.push(res);
+                    });
+
+                    var data = {
+                        pros: pros
+                    };
+                    yui.$axiospostform('/Dict/CreateTransaction', data).then(function (response) {
+                        if (response.data.Item1) {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                            _self.GetTransactionInfo();
+                        } else {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                        }
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+
+                },
+                
+                       DeletAllProcedure: function () {
+                       var _self = this;
+                       var pros = [];
+                    var filetemplates = JSON.parse(_self.template);
+                    var commands = JSON.parse(_self.content);
+                       var res = "";
+                       var name=""
+                       filetemplates.forEach(function (filetemplate, index) {
+                            name = filetemplate.name + "";
+                            res = "";
+                            res =res+ `DROP PROCEDURE IF EXISTS ${name}` + "\n";
+                            pros.push(res);
+                    });
+
+                    var data = {
+                        pros: pros
+                    };
+                    yui.$axiospostform('/Dict/CreateTransaction', data).then(function (response) {
+                        if (response.data.Item1) {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                            _self.GetTransactionInfo();
+                        } else {
+                            layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                        }
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+
+                },
+            
+            }
+        });
+    </script>
+}

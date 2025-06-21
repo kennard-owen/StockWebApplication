@@ -1,0 +1,165 @@
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration _config
+@using PF.Utils.Json
+@using PF.Core.Dto
+@{
+    var DeviceList = ViewData["DeviceList"] as List<HomeDeviceDisplay>;
+    var IMEIList = ViewData["IMEIList"];
+    var DeviceData = ViewData["DeviceData"];
+}
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>
+            仪表盘
+            <small>控制面板</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li class="active">仪表盘</li>
+        </ol>
+    </section>
+
+    <section class="content">
+        <div class="col-md-12 column">
+            <div class="row">
+                @{
+                    if (DeviceList.Count > 0) {
+                        foreach (var item in DeviceList) {
+                            <div class="col-md-3 col-xs-12">
+                                <div class="thumbnail">
+                                    <div class="caption">
+                                        <h3>
+                                            测量距离： <span id="@item.IMEI" ref="@item.IMEI" class="badge"></span>
+                                        </h3>
+                                        <p>
+                                            设备名称：@item.DeviceName
+                                        </p>
+                                        <p>
+                                            所属区域：@item.AreaName
+                                        </p>
+                                        <p>
+                                            IMEI：@item.IMEI
+                                        </p>
+                                        <hr>
+                                        <p>
+                                            更新时间： <br><span id="@(item.IMEI + "time")"></span>
+                                        </p>
+                                        <p>
+                                            <a class="btn btn-primary" href="/Home/DetailInfo?imei=@item.IMEI">详情</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        var ws;
+        var app = new Vue({
+            el: '#app',
+            data: {
+                IMEIList:@Html.Raw(IMEIList.JilToJson()),
+                deviceCount:@DeviceList.Count,
+                DeviceData:@Html.Raw(DeviceData),
+            },
+            mounted: function () {
+                var _self = this;
+                _self.$nextTick(function () {
+                    //if (!navigator.userAgent.match(/x64/i)) {
+                    //    console.info("32位浏览器");
+                    //} else {
+                    //    console.info("64位浏览器");
+                    //}
+                    _self.loadL();
+                    try {
+                        ws = new WebSocket("ws://47.96.29.156:1880/myapp");
+                    } catch (ex) {
+                        try {
+                            ws = new MozWebSocket("ws://47.96.29.156:1880/myapp");
+                        }
+                        catch (ex) {
+                            console.log(ex);
+                        }
+                    }
+                    ws.onopen = _self.WSonOpen;
+                    ws.onmessage = _self.WSonMessage;
+                    ws.onclose = _self.WSonClose;
+                    ws.onerror = _self.WSonError;
+                    //setInterval(function () {
+                    // _self.loadL();
+                    //}, 2000);
+                });
+            },
+            methods: {
+                WSonOpen: function () {
+                    console.log('连接建立');
+                },
+                WSonMessage: function (event) {
+                    var _self = this;
+                    _self.UpDateData(event.data);
+                    //console.log(event.data);
+                },
+                WSonClose: function () {
+                    console.log('关闭');
+                },
+                WSonError: function () {
+                    console.log('错误');
+                },
+                UpDateData: function (data) {
+                    var _self = this;
+                    console.log(data);
+                  //  data = "IMEI:867725031655776|Tem:23|Distance:44";
+                    var temp = data.split('|');
+
+                    var imei = temp[0].split(":")[1];
+                    var tem = temp[1].split(":")[1];
+                    var distance =  temp[2].split(":")[1];
+                    $.each(_self.IMEIList, function (i, val) {
+                        if (val == imei) {
+                            $('#' + imei).text(distance);
+                            var myDate = new Date();
+                            //myDate.toLocaleDateString()
+                            $("#" + imei + "time").text(myDate.toLocaleDateString());
+                        }
+                    });
+                    },
+                loadL: function () {
+                   // DeviceData
+                    var _self = this;
+                    var len = _self.DeviceData.length;
+                    console.log(_self.DeviceData[0]);
+                    for (var i = 0; i < len; i++) {
+                        //console.log(data[i].createDate);
+                        console.log(_self.DeviceData[i]);
+                        //$.each(_self.DeviceData, function (i, val) {
+                        //    if (val == imei) {
+                        //        $('#' + imei).text(distance);
+                        //        var myDate = new Date();
+                        //        //myDate.toLocaleDateString()
+                        //        $("#" + imei + "time").text(myDate.toLocaleDateString());
+                        //    }
+                        //});
+                        $("#" + _self.DeviceData[i].IMEI + "").text(_self.DeviceData[i].Distance);
+                        $("#" + _self.DeviceData[i].IMEI + "time").text(_self.ChangeDateFormat(_self.DeviceData[i].CreateDate));
+                       // $("#" + _self.DeviceData[i].imei + "time").text(_self.DeviceData[i].createDate.replace('T', ' '));
+                    }
+                },
+                ChangeDateFormat: function(timestamp) {
+                        var date = new Date(parseInt(timestamp.replace("/Date(", "").replace(")/", ""), 10));
+                        Y = date.getFullYear() + '-';
+                        M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                        D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' ';
+                        h = (date.getHours() < 10 ? '0' + (date.getHours()) : date.getHours()) + ':';
+                        m = (date.getMinutes() < 10 ? '0' + (date.getMinutes()) : date.getMinutes()) + ':';
+                        s = (date.getSeconds() < 10 ? '0' + (date.getSeconds()) : date.getSeconds());
+                        return Y + M + D + h + m + s;
+                }
+            }
+        });
+    </script>
+}

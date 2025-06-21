@@ -1,0 +1,577 @@
+﻿<div class="content-wrapper">
+    <div id="small">
+        <div id="big">
+            <img src="~/image/Test/hmewm.jpg" />
+        </div>
+    </div>
+
+    <section class="content-header">
+        <h1>
+            策略
+            <small>控制面板</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li class="active">策略</li>
+        </ol>
+    </section>
+
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-body">
+                        <div id="Indicator" class="form-inline">
+                            <div class="form-group">
+                                <span class="input-group-addon form-control" type="submit" v-on:click="EnableEdit">日期范围/激活修改</span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" ref="datemin" id="datemin" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" ref="datemax" id="datemax" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control" v-model="InOrAfterTrade">
+                                    <option value="盘中+盘后">盘中+盘后</option>
+                                    <option value="盘中">盘中</option>
+                                    <option value="盘后">盘后</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control" v-model="Strategy" style="display:none">
+                                    <option value="">请选择</option>
+                                    <option v-for="item in DicList" :value="item.DictId">{{item.DictName}}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control" list="cookies" v-model="Section" @@click="inputSelect" />
+                                <datalist id="cookies">
+                                    <option v-for="item in SectionList">{{item}}</option>
+                                </datalist>
+                            </div>
+                            <div class="form-group">
+                                <button name="search" v-on:click="searchL" type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i> 搜索</button>
+                            </div>
+                            <div class="form-group">
+                                <button name="SaveStrategy" v-on:click="SaveStrategy" type="submit" class="btn btn-success form-control"><i class="fa fa-save"></i> 保存</button>
+                            </div>
+                            <div class="form-group">
+                                <button name="SaveAsStrategy" v-on:click="SaveAsStrategy" type="submit" class="btn btn-success form-control"><i class="fa fa-save"></i>另存</button>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px">
+                            <div class="col-xs-12 col-md-6" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px;display:none">
+                                <textarea v-model="Remark" readonly="readonly" class="form-control mytext" rows="6"></textarea>
+                                <textarea v-model="sql" readonly="readonly" class="form-control mytext sqlText" rows="8" style="margin-top:5px;"></textarea>
+                            </div>
+                            <div class="col-xs-12 col-md-6" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px;display:none">
+                                <textarea v-model="SQLdisplay" readonly="readonly" class="form-control mytext" rows="15"></textarea>
+                            </div>
+                            <div class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px;">
+                                <dl class="permission-list" style="overflow:hidden">
+                                    <dt>
+                                        策略
+                                        <input v-on:click="checkAll" type="button" value="全选">
+                                        <input v-on:click="RemoveAll" type="button" value="清空">
+                                    </dt>
+                                    <dd>
+                                        <dl class="cl permission-list2">
+                                            <dt v-for="(item,index) in DicList" style="float:left;margin-left:10px">
+                                                <label>
+                                                    <input type="checkbox" v-model="checkedNames" :value="item.DictId">
+                                                    {{item.DictName}}
+                                                </label>
+                                            </dt>
+                                        </dl>
+                                    </dd>
+                                </dl>
+                            </div>
+                                <div id="toolbar" class="btn-group">
+                                    <a type="button" href="https://finance.sina.com.cn/realstock/company/sh000001/nc.shtml" target="_blank" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>链接
+                                    </a>
+                                </div>
+                                <div class="col-xs-12 col-md-12 picture" style="border-bottom:solid 5px #1649e4;margin-bottom:15px">
+                                    <div class="col-xs-12 col-md-3 picture">
+                                        <img src="http://image.sinajs.cn/newchart/daily/n/sh000001.gif" style="width:100%;height:200px" />
+                                    </div>
+                                    <div class="col-xs-12 col-md-3 picture">
+                                        <img src="http://image.sinajs.cn/newchart/weekly/n/sh000001.gif" style="width:100%;height:200px" />
+                                    </div>
+                                    <div class="col-xs-12 col-md-3 picture">
+                                        <img src="http://image.sinajs.cn/newchart/monthly/n/sh000001.gif" style="width:100%;height:200px" />
+                                    </div>
+                                    <div class="col-xs-12 col-md-3 picture">
+                                        <img src="http://image.sinajs.cn/newchart/min/n/sh000001.gif" style="width:100%;height:200px" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-md-12 oneStock" v-for="(item,index) in stockList">
+
+                                    <div class="col-xs-12 col-md-12 picture">
+                                        <div id="toolbar" class="btn-group">
+
+
+                                            <button type="button" v-on:click="Show(item.StockNumber,item.StockName,item.TradePlace,item.Date,item.Whole_BeatHowMany,item.Tec_BeatHowMany,item.Fund_BeatHowMany,item.Message_BeatHowMany,item.Section_BeatHowMany,item.Basic_BeatHowMany)" class="btn btn-default">
+                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>操作
+                                            </button>
+
+                                            <button type="button" v-on:click="ShowLatest(item.StockNumber,item.Date,item.StockName)" class="btn btn-default">
+                                                <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>查看
+                                            </button>
+
+                                            <a type="button" :href="getStockUrl(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                                <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>链接
+                                            </a>
+                                            <a type="button" :href="addSelect(item.TradePlace,item.StockNumber)" target="_blank" v-on:click="Show(item.StockNumber,item.StockName,item.TradePlace,item.Date,item.Whole_BeatHowMany,item.Tec_BeatHowMany,item.Fund_BeatHowMany,item.Message_BeatHowMany,item.Section_BeatHowMany,item.Basic_BeatHowMany)" class="btn btn-default">
+                                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>同花順
+                                            </a>
+                                        </div>
+                                        <div style="float:right;font-weight:bold">{{index}}/{{TotalCount}}</div>
+                                        <div><span style="font-weight:bold">日期：</span><span v-html="Emphasis(item.UpdateTimeFlag)"></span></div>
+                                        <div><span style="font-weight:bold">短期：</span><span v-html="Emphasis(item.Whole_ShortTrend)"></span></div>
+                                        <div><span style="font-weight:bold">中期：</span><span v-html="Emphasis(item.Whole_MiddleTrend)"></span></div>
+                                        <div><span style="font-weight:bold">建议：</span><span v-html="Emphasis(item.Whole_Level2Suggest)"></span></div>
+                                        <div><span style="font-weight:bold">描述：</span><span v-html="Emphasis(item.Whole_DescriptionLevel2)"></span></div>
+                                        <div><span style="font-weight:bold">资金描述：</span><span v-html="Emphasis(item.Fund_Level2_Description)"></span></div>
+                                        <div><span style="font-weight:bold">资金去向：</span><span v-html="Emphasis(item.Fund_Level2_GoWhere)"></span></div>
+                                        <div><span style="font-weight:bold">资金行业：</span><span v-html="Emphasis(item.Fund_Section_Overview)"></span></div>
+                                        <p> <span v-for="(date,dateindex) in DateList">{{date}}-{{dateindex}}&nbsp;|</span></p>
+                                    </div>
+                                    <div class="col-xs-12 col-md-3 picture">
+                                        <p class="info"><span>{{item.StockName}}</span><span style="float:right">{{item.Section}}</span></p>
+                                        <p class="info">
+                                            <span>{{item.StockNumber}}</span>
+                                            <span style="font-size:10px">{{item.UpdateTimeFlag}}</span>
+                                            <span style="float:right">{{item.Whole_BuyLevel}}</span>
+                                        </p>
+                                        <img v-bind:src="getDayImgUrl(item.TradePlace,item.StockNumber)" style="width:100%;height:200px" />
+                                    </div>
+
+                                    <div class="col-xs-12 col-md-3 picture">
+                                        <p class="info">
+                                            <span>整体：<br />{{item.Whole_BeatHowMany}}</span>
+                                            <span>技术：<br />{{item.Tec_BeatHowMany}}</span>
+                                            <span>资金：<br />{{item.Fund_BeatHowMany}}</span>
+                                            <span>消息：<br />{{item.Message_BeatHowMany}}</span>
+                                            <span>行业：<br />{{item.Section_BeatHowMany}}</span>
+                                            <span>基本：<br />{{item.Basic_BeatHowMany}}</span>
+
+                                        </p>
+                                        <img v-bind:src="getWeekImgUrl(item.TradePlace,item.StockNumber)" style="width:100%;height:200px" />
+                                    </div>
+                                    <div class="col-xs-12 col-md-3 picture">
+                                        <p class="info"><span class="descpription">{{item.Whole_ShortTrend}}</span> </p>
+                                        <p class="info"><span class="descpription">{{item.Whole_MiddleTrend}}</span> </p>
+                                        <img v-bind:src="getMonthImgUrl(item.TradePlace,item.StockNumber)" style="width:100%;height:200px" />
+                                    </div>
+                                    <div class="col-xs-12 col-md-3 picture">
+                                        <textarea readonly="readonly" class="form-control" style="padding-top:0px;padding-bottom:0px;width:90%;margin-left:10px;font-size:10px" rows="3">{{item.Whole_Level2Suggest}}</textarea>
+                                        <img v-bind:src="getMinImgUrl(item.TradePlace,item.StockNumber)" style="width:100%;height:200px" />
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+
+
+
+@section styles{
+    <style>
+        .picture {
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+
+        .oneStock {
+            border-bottom: dashed 10px #0094ff;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            padding-left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0px;
+        }
+
+        .descpription {
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+
+        #small {
+            width: 50px;
+            height: 50px;
+            background: url('../../wwwroot/image/test/bgs.png') no-repeat -159px -51px;
+            position: fixed;
+            top: 40%;
+            right: 10px;
+            z-index: 9999
+        }
+
+        #big {
+            width: 210px;
+            height: 210px;
+            position: absolute;
+            left: -210px;
+            display: none;
+            z-index: 9999
+        }
+
+            #big img {
+                width: 100%;
+                height: 100%;
+            }
+    </style>
+}
+
+
+@section scripts{
+
+
+    <script>
+        //1.获取页面
+        var small = document.getElementById('small');
+        var big = document.getElementById('big');
+
+        //2.鼠标移入事件
+        small.onmouseover = function () {
+            big.style.display = 'block';
+        }
+        //3.鼠标移出事件
+        small.onmouseout = function () {
+            big.style.display = "none";
+        }
+    </script>
+
+    <script type="text/javascript">
+        var app = new Vue({
+            el: '#app',
+            data: {
+                datemin: '',
+                datemax: '',
+                stockList: [],
+                DicList: [],
+                Strategy: '',
+                SQLdisplay: '',
+                Remark: '',
+                Id: '',
+                DictName: '',
+                DictType: '',
+                Section:'',
+                Remark: '',
+                flag: true,
+                TotalCount: '',
+                InOrAfterTrade: '盘中+盘后',
+                sql: '',
+                DateList: [],
+                SectionList: ["电气设备-200", "化学制品-190", "计算机应用-168", "专用设备-159", "传媒-141", "汽车零部件-130", "通用设备-124", "建筑装饰-122", "房地产开发-117", "化学制药-105", "通信设备-99", "有色冶炼加工-85", "半导体及元件-78", "医疗器械服务-77", "零售-76", "电力-75", "化工合成材料-73", "家用轻工-68", "光学光电子-68", "建筑材料-68", "中药-66", "国防军工-61", "电子制造-59", "食品加工制造-56", "环保工程-55", "服装家纺-54", "基础化学-50", "白色家电-49", "物流-44", "证券-43", "计算机设备-43", "饮料制造-42", "燃气水务-40", "保险及其他-35", "煤炭开采加工-35", "包装印刷-35", "通信服务-34", "其他电子-34", "农产品加工-34", "银行-33", "生物制品-33", "钢铁-32", "纺织制造-31", "仪器仪表-31", "新材料-30", "港口航运-29", "综合-27", "公路铁路运输-25", "医药商业-25", "贸易-25", "汽车整车-24", "景点及旅游-22", "非汽车交运-22", "种植业与林业-21", "造纸-20", "养殖业-19", "采掘服务-16", "化工新材料-15", "机场航运-12", "视听器材-11", "园区开发-11", "石油矿业开采-11", "交运设备服务-11", "农业服务-9", "公交-9", "酒店及餐饮-8", "， 暂无相关评论。-2"],
+                checkedNames:[],
+                width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+                height: window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+            },
+            mounted: function () {
+                var _self = this;
+                _self.$nextTick(function () {
+                    //显示active
+                    _self.$refs.StockWhole.parentNode.parentNode.classList.add("active");
+                    _self.$refs.StockWhole.classList.add("active");
+                    _self.GetDicList();
+                    _self.GetDateList();
+                    _self.$refs.datemin.value = _self.getNow();
+                    _self.$refs.datemax.value = _self.getNow();
+
+                    $('#datemin').datetimepicker({
+                        format: 'yyyy-mm-dd',
+                        minView: 2,
+                        autoclose: true,
+                        language: "en-us"
+                    });
+                    $('#datemax').datetimepicker({
+                        format: 'yyyy-mm-dd',
+                        minView: 2,
+                        autoclose: true,
+                        language: "en-us"
+                    });
+                    setTimeout(function () {
+                        _self.searchL();
+                        $("#Indicator").css({ "background": "white" });
+                    }, 500);
+                });
+            },
+            watch: {
+                Strategy(val, oldval) {
+                    var _self = this;
+                    _self.DicList.forEach(function (item, index) {
+                        if (item.DictId== val) {
+                            _self.Id = item.DictId;
+                            _self.DictName = item.DictName;
+                            _self.DictType = item.DictType;
+                            _self.Remark = item.Remark;
+                            _self.SQLdisplay = item.SQL;
+                        }
+                    });
+                    //Remark = val
+                }
+            },
+
+
+            methods: {
+                inputSelect: function () {
+                    var _self = this;
+                    _self.Section = '';
+                },
+                addSelect: function (TradePlace, StockNumber) {
+                    var url = 'http://stockpage.10jqka.com.cn/spService/' + StockNumber + '/Header/selfStockAdd';
+                    return url;
+                },
+                GetDicList: function () {
+                    var _self = this;
+                    yui.$axiospost('/Dict/GetDicList', null).then(function (response) {
+                        _self.DicList = response.data;
+                        console.info(response.data);
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+
+                checkAll: function () {
+                    var _self = this;
+                    _self.DicList.forEach(function (item, index) {
+                        if (_self.checkedNames.indexOf(item.DictId) < 0) {
+                            _self.checkedNames.push(item.DictId);
+                        }
+                    });
+                },
+                RemoveAll: function () {
+                    var _self = this;
+                    _self.checkedNames = [];
+                },
+
+                Emphasis: function (content) {
+                    var _self = this;
+                    var array = ['多头', '有所减缓', '非常活跃', '高度活跃', '活跃度一般', '净流出', '流出', '流入','多方势头较强', '市场关注','净流入','涨停','较为活跃', '筹码较分散','谨慎','利好', '一定的筹码', '流进', '投资价值较高', '高度控盘', '没有控盘', '共流入', '重大', '中度控盘', '连续上涨', '运营状况良好', '位', '第', '较多', '上涨概率较大','超过'];
+                    var res = content;
+                    array.forEach(function (item, index, currentArray) {
+                        //var temp = _self.jsonDateFormat(item.Date).split(' ')[0].split('-')[2];
+                        //_self.DateList.push(temp);
+                        if (content.indexOf(item) >= 0) {
+                            var reg = new RegExp(item, "g");//g,表示全部替换。
+                            res = res.replace(reg, '<span style="color:red;font-weight:bold">' + item+'</span>');
+                            //res = res.replace(reg, '【' + item + '】');
+                        }
+                    });
+                    return res;
+                },
+
+                GetDateList: function () {
+                    var _self = this;
+                    yui.$axiospost('/Stock/DateList', null).then(function (response) {
+                        var thisdate= response.data;
+                        thisdate.forEach(function (item, index, currentArray) {
+                            var temp = _self.jsonDateFormat(item.Date).split(' ')[0].split('-')[2];
+                            _self.DateList.push(temp);
+                        });
+                        //_self.jsonDateFormat(item)
+                        console.info(_self.DateList);
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                EnableEdit: function () {
+                    var _self = this;
+                    if (_self.flag) {
+                        $(".mytext").attr("readonly", true);
+                        _self.flag = false;
+                    }else{
+                        $(".mytext").attr("readonly", false);
+                        _self.flag = true;
+                    }
+                },
+                ShowLatest: function (stock, date,stockName) {
+                    var _self = this;
+                    var recommenddate = _self.jsonDateFormat(date);
+                    yui.layershow(stockName, "/Stock/LatestInfoView?StockNumber=" + stock + "&Date=" + recommenddate, _self.width * 0.8, _self.height*0.8);
+                },
+
+                SaveAsStrategy: function () {
+                    var _self = this;
+                    layer.prompt({ title: '策略名称', formType: 2 }, function (text, index) {
+                        var data = {
+                            id: '',
+                            DictName: text,
+                            DictType: _self.DictType,
+                            Remark: _self.Remark,
+                            SQL: _self.SQLdisplay
+                        };
+                        yui.$axiospostform('/Dict/AddOrUpdate', data)
+                            .then(function (response) {
+                                if (response.data.Item1 === 101) {
+                                    layer.tips(response.data.Item2, '.layui-layer-setwin', {
+                                        tips: [1, '#3595CC'],
+                                        time: 3000
+                                    });
+                                    layer.close(index);
+                                    return false;
+                                }
+                                if (response.data.Item1) {
+                                    _self.GetDicList();
+                                    $(".mytext").attr("readonly", true);
+                                    layer.msg(response.data.Item2, { icon: 1, time: 1000 });
+                                    setTimeout(function () {
+                                        yui.layer_close3();
+                                    }, 500);
+                                } else {
+                                    layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                                }
+                            })
+                            .catch(function (error) {
+                                layer.msg('策略保存失败！');
+                            });
+                        layer.close(index);
+                        layer.msg('策略保存成功！');
+                    });
+                },
+                SaveStrategy: function () {
+                    var _self = this;
+                    var data = {
+                        id: _self.Id,
+                        DictName: _self.DictName,
+                        DictType: _self.DictType,
+                        Remark: _self.Remark,
+                        SQL: _self.SQLdisplay
+                    };
+                    yui.$axiospostform('/Dict/AddOrUpdate', data)
+                        .then(function (response) {
+                            if (response.data.Item1 === 101) {
+                                layer.tips(response.data.Item2, '.layui-layer-setwin', {
+                                    tips: [1, '#3595CC'],
+                                    time: 3000
+                                });
+                                layer.close(index);
+                                return false;
+                            }
+                            if (response.data.Item1) {
+                                _self.GetDicList();
+                                $(".mytext").attr("readonly", true);
+                                layer.msg(response.data.Item2, { icon: 1, time: 1000 });
+                                setTimeout(function () {
+                                    yui.layer_close3();
+                                }, 500);
+                            } else {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                            }
+                        })
+                        .catch(function (error) {
+
+                        });
+                },
+                searchL: function () {
+                    var _self = this;
+                    var data = {
+                        datemin: _self.$refs.datemin.value,
+                        datemax: _self.$refs.datemax.value,
+                        StrategyIdList: _self.checkedNames,
+                        InOrAfterTrade: _self.InOrAfterTrade,
+                        Section: _self.Section,
+                    };
+                    $("#Indicator").css({ "background": "#f39c12" });
+                    yui.$axiospostform('/Stock/GetAllStrategyData', data).then(function (response) {
+                        _self.stockList = response.data.list;
+                        _self.sql = response.data.sql;
+                        _self.TotalCount = _self.stockList.length;
+                        if (_self.sql.indexOf("错误") != -1) {
+                            layer.msg("SQL错误" || errorMsg, { icon: 5 });
+                            $("#Indicator").css({ "background": "red" });
+
+                        } else {
+                            layer.msg("搜索完成", { icon: 1, time: 1000 });
+                            $("#Indicator").css({ "background": "#7bd4d4" });
+                        }
+
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                getDayImgUrl: function (place, number, lenth) {
+                    var url = "http://image.sinajs.cn/newchart/daily/n/" + place + number + ".gif";
+                    return url;
+                },
+                getWeekImgUrl: function (place, number, lenth) {
+                    var url = "http://image.sinajs.cn/newchart/weekly/n/" + place + number + ".gif";
+                    return url;
+                },
+                getMonthImgUrl: function (place, number, lenth) {
+                    var url = "http://image.sinajs.cn/newchart/monthly/n/" + place + number + ".gif";
+                    return url;
+                },
+                getMinImgUrl: function (place, number, lenth) {
+                    var url = "http://image.sinajs.cn/newchart/min/n/" + place + number + ".gif";
+                    return url;
+                },
+                getStockUrl: function (place, number, lenth) {
+                    https://finance.sina.com.cn/realstock/company/sh600387/nc.shtml
+                    var url = "https://finance.sina.com.cn/realstock/company/" + place + number + "/nc.shtml";
+                    return url;
+                },
+                //item.StockNumber, item.StockName, item.TradePlace, item.Date
+
+            //< span > 整体：< br /> {{ item.Whole_BeatHowMany }}</span >
+            //<span>技术：<br />{{ item.Tec_BeatHowMany }}</span>
+            //<span>资金：<br />{{ item.Fund_BeatHowMany }}</span>
+            //<span>消息：<br />{{ item.Message_BeatHowMany }}</span>
+            //<span>行业：<br />{{ item.Section_BeatHowMany }}</span>
+            //<span>基本：<br />{{ item.Basic_BeatHowMany }}</span>
+                Show: function (StockNumber, StockName, TradePlace, Date, Whole_BeatHowMany, Tec_BeatHowMany, Fund_BeatHowMany, Message_BeatHowMany, Section_BeatHowMany, Basic_BeatHowMany) {
+                    var _self = this;
+                    var recommenddate = _self.jsonDateFormat(Date);
+                    yui.$axiosget('/SelfSelect/AskIfAddedToday?StockNumber=' + StockNumber)
+                        .then(function (response) {
+                            if (response.data.Item1) {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                            } else {
+                                yui.layershow("添加自选", "/SelfSelect/Add?StockNumber=" + StockNumber + "&StockName=" + StockName + "&TradePlace=" + TradePlace + "&Date=" + recommenddate + "&Whole_BeatHowMany=" + Whole_BeatHowMany + "&Tec_BeatHowMany=" + Tec_BeatHowMany + "&Fund_BeatHowMany=" + Fund_BeatHowMany + "&Message_BeatHowMany=" + Message_BeatHowMany + "&Section_BeatHowMany=" + Section_BeatHowMany + "&Basic_BeatHowMany=" + Basic_BeatHowMany, _self.width * 0.8, _self.height * 0.8);
+                            }
+                        })
+                        .catch(function (error) {
+                            layer.msg(error.message, { icon: 5 });
+                        });
+                },
+                deleteL: function () {
+                    var _self = this;
+                    var arr = $("#bootstraptable").bootstrapTable('getSelections');
+                    if (arr.length > 0) {
+                        var index = layer.confirm("您确定要删除吗？", { btn: ["确定", "取消"] }, function () {
+                            var id = arr[0].DeptId;
+                            yui.$axiosget('/Dept/Delete?id=' + id)
+                                .then(function (response) {
+                                    if (response.data.Item1) {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                                        _self.searchL();
+                                    } else {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                                    }
+                                })
+                                .catch(function (error) {
+                                    layer.msg(error.message, { icon: 5 });
+                                });
+                            layer.close(index);
+                        });
+                    } else {
+                        layer.alert("请选中行", { icoon: 3, skin: "layer-ext-moon" });
+                    }
+                }
+            }
+        });
+    </script>
+}
+

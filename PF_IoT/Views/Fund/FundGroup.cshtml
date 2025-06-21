@@ -1,0 +1,328 @@
+﻿<div class="content-wrapper">
+    <section class="content-header">
+        <h1>
+            Fund Realtime
+            <small>Fund</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i>Dashboard</a></li>
+            <li><a href="#">Fund</a></li>
+            <li class="active"> Fund Realtime</li>
+        </ol>
+    </section>
+    <section class="content">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-body">
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <span class="input-group-addon form-control">Time Span</span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" v-model="datemin" ref="datemin" id="datemin" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" v-model="datemax" ref="datemax" id="datemax" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <button name="search" v-on:click="searchL" type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i>Search</button>
+                            </div>
+
+
+                            <div class="form-group">
+                                <button name="search" v-on:click="AddTo" type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i>转移</button>
+                            </div>
+
+                            <div class="form-group">
+                                <button name="search" v-on:click="RemoveTo" type="submit" class="btn btn-success form-control"><i class="fa fa-search"></i>清除</button>
+                            </div>
+                        </div>
+
+                        <div id="toolbar" class="btn-group">
+                            <button id="btn_add" v-on:click="showL" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>不带星
+                            </button>
+                            <button id="btn_add2" v-on:click="showLWithStar" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>带星
+                            </button>
+
+                            <button id="btn_add2" v-on:click="RemoveHotConception" type="button" class="btn btn-default">
+                                <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>去除热点
+                            </button>
+                        </div>
+                        <table id="bootstraptable" class="table table-bordered text-nowrap table-hover"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<div class="table-responsive">
+                <table id="bootstraptable" class="table text-nowrap"></table>
+            </div>*@
+    </section>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                UserNickname: '',
+                datemin: '',
+                datemax: ''
+            },
+            mounted: function () {
+                var _self = this;
+                _self.$nextTick(function () {
+                    _self.$refs.FundFundGroup.parentNode.parentNode.classList.add("active");
+                    _self.$refs.FundFundGroup.classList.add("active");
+
+                    _self.datemin = _self.getNdayAgo(-5);
+                    _self.datemax = _self.getNow();
+                    $('#datemin').datetimepicker({
+                        format: 'yyyy-mm-dd',
+                        minView: 2,
+                        autoclose: true,
+                        language: "en-us"
+                    });
+                    $('#datemax').datetimepicker({
+                        format: 'yyyy-mm-dd',
+                        minView: 2,
+                        autoclose: true,
+                        language: "en-us"
+                    });
+                    setTimeout(function () {
+                        _self.loadL();
+                        $("div[class='pull-right search ']")[0].children[0].setAttribute("placeholder", "TotalFund,CurrentFund,Times");
+                    }, 500);
+                });
+            },
+            methods: {
+                loadL: function () {
+                    _self = this;
+                    var obj = [{
+                        checkbox: true,             //是否显示复选框
+                        visible: true
+                    },
+                     {
+                            field: 'id',
+                            title: '序号',
+                            align: 'center',
+                      
+                    },
+                    {
+                        field: 'platename',
+                        title: '概念',
+                        align: 'center',
+                     
+                    }, {
+                        field: 'FundInTotal',
+                        title: 'N日资金流入',
+                        align: 'center',
+                           formatter: function (value, row, index) {
+                            if (value >0) {
+                                return '<span class="label label-danger radius">'+value+'</span>';
+                            } else {
+                                return '<span class="label label-success radius">'+value+'</span>';
+                            }
+                        },
+                        sortable: true
+                    },{
+                        field: 'CurrentFund',
+                        title: '当天资金流入',
+                        align: 'center',
+                          formatter: function (value, row, index) {
+                            if (value >0) {
+                                return '<span class="label label-danger radius">'+value+'</span>';
+                            } else {
+                                return '<span class="label label-success radius">'+value+'</span>';
+                            }
+                        },
+                        sortable: true
+                    },{
+                        field: 'Times',
+                        title: '流入天数',
+                        align: 'center',
+                        sortable: true
+                    }, {
+                        field: 'TimeSpan',
+                        title: '时间跨度',
+                        align: 'center',
+                        sortable: true
+                        }];
+                    yui.tableAll("bootstraptable", "/Fund/ListGroup", obj, "POST", "UserId", false);
+                },
+
+                showL: function () {
+                   var _self = this;
+                   var arr = $("#bootstraptable").bootstrapTable('getSelections');
+                       var res = "";
+                    if (arr.length > 0) {
+                       arr.forEach(function (item, index) {
+                              res = res + item.platename + "|";
+                       });
+                        res = res.substr(0, res.length - 1);
+                         layer.alert(res);
+                    } else {
+                        layer.alert("Please select one item", { icoon: 3, skin: "layer-ext-moon" });
+                    }
+                },
+
+                
+                showLWithStar: function () {
+                    var _self = this;
+                   var arr = $("#bootstraptable").bootstrapTable('getSelections');
+                       var res = "";
+                    if (arr.length > 0) {
+                       arr.forEach(function (item, index) {
+                              res = res +".*"+ item.platename + ".*|";
+                       });
+                         res = res.substr(0, res.length - 1);
+                        var index = layer.confirm(res, { btn: ["Confirm", "Cancel"] }, function () {
+                            layer.close(index);
+                               var data = { conception: res };
+                            yui.$axiospostform('/Fund/AddHotConception', data).then(function (response) {
+                                console.log(response.data.res);
+                                if (response.data.res == 'True') {
+                                    layer.alert(("添加完成,总共" + response.data.number + "行"));
+                                } else {
+                                    layer.msg("添加失败" || errorMsg, { icon: 5 });
+                                }
+                            }, function () { });
+                        }, function () {
+
+                        });
+                    } else {
+                        layer.alert("Please select one item", { icoon: 3, skin: "layer-ext-moon" });
+                    }
+                },
+                
+                searchL: function () {
+                    $("#bootstraptable").bootstrapTable('refresh');
+                },
+
+
+               AddTo: function () {
+                    var _self = this;
+                    var data = {
+                        datemin: _self.$refs.datemin.value,
+                        datemax: _self.$refs.datemax.value,
+                    };
+                   yui.$axiospostform('/Fund/AddToHistory', data).then(function (response) {
+                     
+                        if (response.data=='True') {
+                            layer.msg("添加完成", { icon: 1, time: 1000 });
+                        } else {
+                            layer.msg("添加失败" || errorMsg, { icon: 5 });
+                        }
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                   RemoveTo: function () {
+                    var _self = this;
+                    var data = {
+                        datemin: _self.$refs.datemin.value,
+                        datemax: _self.$refs.datemax.value,
+                    };
+                       yui.$axiospostform('/Fund/RemoveToHistory', data).then(function (response) {
+                        if (response.data=='True') {
+                            layer.msg("清理完成", { icon: 1, time: 1000 });
+                        } else {
+                            layer.msg("清理失败" || errorMsg, { icon: 5 });
+                        }
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                RemoveHotConception: function () {
+                    var _self = this;
+                    var data = {
+                        datemin: _self.$refs.datemin.value,
+                        datemax: _self.$refs.datemax.value,
+                    };
+                       yui.$axiospostform('/Fund/DeleteHotConception', data).then(function (response) {
+                        if (response.data.res == 'True') {
+                            layer.alert("清理完成,总共" + response.data.number + "行");
+                        } else {
+                            layer.msg("清理失败" || errorMsg, { icon: 5 });
+                        }
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+
+                editL: function () {
+                    var arr = $("#bootstraptable").bootstrapTable('getSelections');
+                    if (arr.length > 0) {
+                        
+                        var index = layer.confirm("Confirm to Modify?", { btn: ["Confirm", "Cancel"] }, function () {
+                            layer.close(index);
+                            var id = arr[0].UserId;
+                            yui.layershow("Modify user", "/User/Add?id=" + id, 500, 500);
+                        }, function () {
+
+                        });
+                    } else {
+                        layer.alert("Please select one item", { icoon: 3, skin: "layer-ext-moon" });
+                    }
+                },
+                enableL: function () {
+                    var _self = this;
+                    var arr = $("#bootstraptable").bootstrapTable('getSelections');
+                    if (arr.length > 0) {
+                        var value = arr[0].IsEabled;
+                        var content = "Enable";
+                        if (value === 1) {
+                            content = "Disable";
+                        }
+                        var index = layer.confirm("Confirm" + content + "?", { btn: ["Confirm", "Cancel"] }, function () {
+                            var id = arr[0].UserId;
+                            axios.get('/User/Enable?id=' + id + "&type=" + value)
+                                .then(function (response) {
+                                    if (response.data.Item1) {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                                        _self.searchL();
+                                    } else {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                                    }
+                                })
+                                .catch(function (error) {
+                                    layer.msg(error.message, { icon: 5 });
+                                });
+                            layer.close(index);
+                        });
+                    } else {
+                        layer.alert("Please select one item", { icoon: 3, skin: "layer-ext-moon" });
+                    }
+                },
+                deleteL: function () {
+                    _self = this;
+                    var arr = $("#bootstraptable").bootstrapTable('getSelections');
+                    if (arr.length > 0) {
+                        var index = layer.confirm("Confirm to delete?", { btn: ["Confirm", "Cancel"] }, function () {
+                            var id = arr[0].UserId;
+                            yui.$axiosget('/User/Delete?id=' + id)
+                                .then(function (response) {
+                                    if (response.data.Item1) {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                                        _self.searchL();
+                                    } else {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                                    }
+                                })
+                                .catch(function (error) {
+                                    layer.msg(error.message, { icon: 5 });
+                                });
+                            layer.close(index);
+                        });
+                    } else {
+                        layer.alert("Please select one item", { icoon: 3, skin: "layer-ext-moon" });
+                    }
+                }
+            }
+        });
+    </script>
+}

@@ -1,0 +1,171 @@
+﻿@{
+    Layout = "_LayoutH";
+    @model SelfSelect
+}
+<div id="app" v-cloak>
+    <form class="form-horizontal" onsubmit="return false">
+        <div class="box-body">
+            <table class="table table-bordered">
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">操作:</label>
+                            <div class="col-sm-10">
+                                <input  class="form-control" list="cookies" v-model="Operation" @@click="inputSelect"/>
+                                <datalist id="cookies">
+                                    <option v-for="item in OperationList">{{item.Operation}}</option>
+                                </datalist>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">StockNumber:</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" v-model="StockNumber" v-focus type="text">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">StockName:</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" v-model="StockName" v-focus type="text">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">RecommendDate:</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" v-model="RecommendDate" v-focus type="text">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+            </table>
+
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Cost:</label>
+                <div class="col-sm-10">
+                    <input class="form-control" v-model="Cost" v-focus type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">备注</label>
+                <div class="col-sm-10">
+                    <textarea v-model="Remark" class="form-control" rows="3" placeholder="备注...100个字符以内"></textarea>
+                    <p class="textarea-numberbar"><em class="textarea-length">{{count}}</em>/100</p>
+                </div>
+            </div>
+        </div>
+        <div class="box-footer">
+            <div class="pull-right box-tools">
+                <input v-on:click="addL" class="btn btn-primary radius" type="submit" v-model="submit">
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts{
+    <script>
+        var app = new Vue({
+            el: "#app",
+            data: {
+
+                submit: "添加",
+                Operation: "@Model.Operation",
+                OperationList: [],
+                Id:"@Model.SelfSelectId",
+                Remark: "@Model.Remark",
+                StockNumber: "@Model.StockNumber",
+                StockName: "@Model.StockName",
+                RecommendDate: "@Model.RecommendDate",
+                TradePlace: "@Model.TradePlace",
+                Cost:"@Model.Cost",
+            },
+            computed: {
+                count: function () {
+                    return this.strLength(this.Remark, false);
+                }
+            },
+            mounted: function(){
+                var _self = this;
+                _self.$nextTick(function () {
+                    _self.GetOperationList();
+
+
+                    setTimeout(function () {
+                    }, 500);
+                });
+            },
+            methods: {
+                inputSelect: function () {
+                    var _self = this;
+                    _self.Operation = '';
+                },
+                GetOperationList: function () {
+                    var _self = this;
+                    yui.$axiospost('/SelfSelect/OperationList', null).then(function (response) {
+                        _self.OperationList = response.data;
+                        console.info(response.data);
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                addL: function () {
+                   var _self = this;
+                    //if (_self.DictName.length <= 0) {
+                    //    layer.msg("字典名称不能为空", { icon: 2 });
+                    //    return false;
+                    //}
+                    //if (_self.DictType.length <= 0) {
+                    //    layer.msg("请选择字典类型", { icon: 2 });
+                    //    return false;
+                    //}
+                    var index = layer.load(1, {
+                        shade: [0.1, '#fff'] //0.1透明度的白色背景
+                    });
+                    var data = {
+                        Id: _self.Id,
+                        Operation:_self.Operation,
+                        Remark: _self.Remark,
+                        TradePlace: _self.TradePlace,
+                        StockNumber: _self.StockNumber,
+                        StockName: _self.StockName,
+                        RecommendDate:_self.RecommendDate,
+                        Remark: _self.Remark,
+                        Cost: _self.Cost,
+                    };
+                    yui.$axiospostform('/SelfSelect/AddOrUpdateManul', data)
+                        .then(function (response) {
+                            if (response.data.Item1 === 101) {
+                                layer.tips(response.data.Item2, '.layui-layer-setwin', {
+                                    tips: [1, '#3595CC'],
+                                    time: 3000
+                                });
+                                layer.close(index);
+                                return false;
+                            }
+                            if (response.data.Item1) {
+                                layer.msg(response.data.Item2, { icon: 1, time: 1000 });
+                                setTimeout(function () {
+                                    yui.layer_close3();
+                                }, 500);
+                            } else {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                            }
+                            layer.close(index);
+                        })
+                        .catch(function (error) {
+                            layer.close(index);
+                        });
+                }
+            }
+        });
+    </script>
+}

@@ -1,0 +1,444 @@
+﻿@{
+    var stocks = ViewData["stocks"] as string;
+       var info = ViewData["info"] as string;
+ }
+
+<div class="content-wrapper">
+    <div id="small">
+        <div id="big">
+            <img src="~/image/Test/hmewm.jpg" />
+        </div>
+    </div>
+
+    <section class="content-header">
+        <h1>
+            @info
+            <small>持仓信息</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li class="active">策略</li>
+        </ol>
+    </section>
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-body">
+
+
+
+                        <div class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px">
+                         
+                            <div class="col-xs-12 col-md-12 oneStock" v-for="(item,index) in filterStockList">
+
+                                <div class="col-xs-12 col-md-12 picture">
+                                    <div id="toolbar" class="btn-group">
+                                        <button type="button" v-on:click="Show(item.StockNumber,item.StockName,item.TradePlace,item.Date,item.Whole_BeatHowMany,item.Tec_BeatHowMany,item.Fund_BeatHowMany,item.Message_BeatHowMany,item.Section_BeatHowMany,item.Basic_BeatHowMany)" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>操作
+                                        </button>
+                                        <button id="btn_edit" v-on:click="Modify(item.StockNumber)" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+                                        </button>
+                                        <button type="button" v-on:click="ShowLatest(item.StockNumber,item.Date,item.StockName)" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>查看
+                                        </button>
+                                        <a type="button" :href="getStockUrl(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>新浪
+                                        </a>
+                                        <a type="button" :href="getWencai(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>问财
+                                        </a>
+                                        <a type="button" :href="addSelect(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>同花順
+                                        </a>
+                                        <button v-on:click="Sifter($event)" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>条件
+                                        </button>
+                                        <a type="button" :href="getTecParaHistory(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>参数史
+                                        </a>
+                                        <a type="button" :href="getTrendHistory(item.TradePlace,item.StockNumber)" target="_blank" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>趋势史
+                                        </a>
+                                    </div>
+
+
+                                    <div style="float:right;font-weight:bold;margin-left:15px" v-on:click="GoDown()"><span class="glyphicon glyphicon-circle-arrow-down">底部</span></div>
+                                    <div style="float:right;font-weight:bold" v-on:click="GoBack()">{{index}}/{{TotalCount}}&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-circle-arrow-up">顶部</span></div>
+                                    <div><span style="font-weight:bold">概念：</span><span>{{item.Conception}}</span></div>
+
+                                    <div><span style="font-weight:bold">(最大间隔{{ToFix(item.GapPercent)}})(与最低值间隔{{ToFix(item.GapPercentWithLow)}})（多天涨幅{{ToFix(item.NDayAmplitude)}}）（一月涨幅{{ToFix(item.Section_ThisStock_1DayUp)}}）</span></div>
+                                    @*<div><span style="font-weight:bold">技术：</span><span>{{item.ProcessedPara}}</span></div>*@
+
+                                </div>
+
+                                <div class="col-xs-6 col-md-3 picture">
+                                    <span>日</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'','-2')" style="width:100%;height:230px" />
+                                </div>
+                                <div class="col-xs-6  col-md-3 picture">
+                                    <span>日</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'','-5')" style="width:100%;height:230px" />
+                                </div>
+                                <div class="col-xs-6  col-md-3 picture">
+                                    <span>15分</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'M15','-3')" style="width:100%;height:230px" />
+                                </div>
+                                <div class="col-xs-6  col-md-3 picture">
+                                    <span>5分</span>
+                                    <img v-bind:src="getImgUrl(item.TradePlace,item.StockNumber,'M5','-3')" style="width:100%;height:230px" />
+                                </div>
+
+                            </div>
+
+
+
+                            <div id="targetDown" class="col-xs-12 col-md-12" style="padding-left:0px;padding-right:0px;margin-top:10px;margin-bottom:10px;">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+
+
+
+@section styles{
+    <style>
+        .picture {
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+
+        .oneStock {
+            border-bottom: dashed 10px #0094ff;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            padding-left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0px;
+        }
+
+        .descpription {
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .cl {
+            font-size: 10px;
+            margin-bottom: 0px;
+        }
+
+        .permission-list {
+            margin-bottom: 0px;
+        }
+
+        #small {
+            width: 50px;
+            height: 50px;
+            background: url('../../wwwroot/image/test/bgs.png') no-repeat -159px -51px;
+            position: fixed;
+            top: 40%;
+            right: 10px;
+            z-index: 9999
+        }
+
+        .selected {
+            color: red;
+        }
+
+        #big {
+            width: 210px;
+            height: 210px;
+            position: absolute;
+            left: -210px;
+            display: none;
+            z-index: 9999
+        }
+
+        .icon-checked {
+            color: red;
+        }
+
+        .permission-list {
+            border-bottom: 1px solid
+        }
+
+        #big img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .sifter {
+            display: none;
+        }
+    </style>
+}
+
+
+@section scripts{
+
+
+    <script>
+        //1.获取页面
+        var small = document.getElementById('small');
+        var big = document.getElementById('big');
+
+        //2.鼠标移入事件
+        small.onmouseover = function () {
+            big.style.display = 'block';
+        }
+        //3.鼠标移出事件
+        small.onmouseout = function () {
+            big.style.display = "none";
+        }
+    </script>
+
+    <script type="text/javascript">
+        var app = new Vue({
+            el: '#app',
+            data: {
+                Fundstocks:"@stocks",
+                sqlTemp:'',
+                datemin: '',
+                datemax: '',
+                DateWantSee:'',
+                stockList: [],
+                Conception:'',
+                filter: '',
+                filter2: '',
+                filterStockList:[],
+                DicList: [],
+                Strategy: '',
+                SQLdisplay: '',
+                Remark: '',
+                Id: '',
+                DictName: '',
+                DictType: '',
+                Section: '',
+              StrategyImage:"~/upload/strategy/e7c705e85b284e229037c100f65b4032.png",
+
+                Whole_MiddleTrend_Sifter: '',
+                Whole_ShortTrend_Sifter: '',
+
+                Remark: '',
+                flag: true,
+                TotalCount: '',
+                serverNumber: '',
+                InOrAfterTrade: '盘后',
+                sql: '',
+                DateList: [],
+                checkedNames: [],
+                CheckSectionList: [],
+                width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+                height: window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight,
+
+
+                sqlTemp:"",
+
+         
+
+
+                Conception_text: '',
+                Conception: [],
+                Conception_Check: [],
+
+
+
+            },
+            mounted: function () {
+                var _self = this;
+                _self.$nextTick(function () {
+                    //显示active
+                    setTimeout(function () {
+                        _self.searchL("");
+                    }, 500);
+                });
+            },
+
+            methods: {
+                Sifter: function (e) {
+                    $(e.target).parents(".picture").children(".sifterControl").toggleClass("sifter");
+                },
+                GoBack: function() {
+                    target.scrollIntoView();
+                },
+                ToFix: function (value) {
+                 if (typeof(value) == "undefined")
+                    {
+                        return 0;
+                    }
+                   return value.toFixed(1);
+                },
+
+               GoDown: function() {
+                    targetDown.scrollIntoView();
+                },
+                 addSelect: function (TradePlace, StockNumber) {
+                    //var url = 'http://stockpage.10jqka.com.cn/spService/' + StockNumber + '/Header/selfStockAdd';
+                    var url = 'http://stock.10jqka.com.cn/self.php?stockcode=' + StockNumber + '&op=add&&jsonp=jQuery1830004172045065825136_1595810971471&_=1595811031587';
+                    return url;
+                },
+               ShowLatest: function (stock, date, stockName) {
+                    var _self = this;
+                    var recommenddate = _self.jsonDateFormat(date);
+                    yui.layershow(stockName, "/Stock/LatestInfoView?StockNumber=" + stock + "&Date=" + recommenddate, _self.width * 0.8, _self.height * 0.8);
+                },
+                Modify: function (stockNumber) {
+                    var _self = this;
+                    var data = {
+                        stockNumber: stockNumber,
+                    };
+                    yui.$axiospostform('/SelfSelect/GetSelfSelectId', data).then(function (response) {
+                        var SelfSelectId = response.data.replace('A','');
+                        var index = layer.confirm("您确定要修改吗？", { btn: ["确定", "取消"] }, function () {
+                            layer.close(index);
+                            var id = SelfSelectId;
+                            yui.layershow("修改自选", "/SelfSelect/AddManual?id=" + id, _self.width * 0.8, _self.height * 0.8);
+                        }, function () {
+                        });
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+
+
+                },
+            
+
+           
+
+                searchL: function (sql) {
+                    var _self = this;
+                 
+                    var data = {
+                         stocksInFund: _self.Fundstocks,
+                    };
+                  
+                    yui.$axiospostform('/Stock/GetStocksInFund', data).then(function (response) {
+                        _self.stockList = response.data.list;
+                        _self.sql = response.data.sql;
+                        //把中期趋势
+                    
+                      
+                        _self.filterStockList = _self.stockList;
+                        _self.serverNumber = _self.stockList.length;
+                        _self.TotalCount = _self.filterStockList.length;
+                            console.log(_self.filterStockList);
+                      
+
+                    }).catch(function (error) {
+                        console.info(error);
+                    });
+                },
+                getImgUrl: function (place, number, lenth,scale) {
+                  if (number.substr(0, 1)=='0'||number.substr(0, 1)=='3') {
+                       flag = "0.";
+                    }
+                     if (number.substr(0, 1)=='6') {
+                         flag = "1.";
+                    }
+                    var url="http://webquoteklinepic.eastmoney.com/GetPic.aspx?nid="+flag+number+"&UnitWidth="+scale+"&imageType=KXL&EF=&Formula=RSI&AT=1&&type="+lenth;
+                    return url;
+                },
+                getWencai: function (place, number, lenth) {
+                    var url = "http://www.iwencai.com/stockpick/search?w=" + number + "#right_nav_62";
+                    return url;
+                },
+                 getTecPara: function (place, number, lenth) {
+                     var url = "http://www.iwencai.com/stockpick/search?typed=1&preParams=&ts=1&f=1&qs=index_rewrite&selfsectsn=&querytype=&searchfilter=&tid=stockpick&w=" + number + " 选股新动向";
+                    return url;
+                },
+                     getTecParaJson: function (place, number, lenth) {
+                     var url = "http://www.iwencai.com/diag/block-detail?pid=11295&codes="+number+"&codeType=stock&info=%7b%22view%22%3a%7b%22nolazy%22%3a1%2c%22parseArr%22%3a%7b%22_v%22%3a%22new%22%2c%22staying%22%3a%5b%5d%2c%22queryCompare%22%3a%5b%5d%2c%22comparesOfIndex%22%3a%5b%5d%7d%2c%22asyncParams%22%3a%7b%22tid%22%3a9271%7d%7d%7d";
+                    return url;
+                },
+                getTecParaHistory: function (place, number, lenth) {
+                    var url = "/Stock/QueryInfoTecPara?StockNumber=" + number;
+                    return url;
+                },
+                  getTrendHistory: function (place, number, lenth) {
+                    var url = "/Stock/QueryInfo?StockNumber=" + number;
+                    return url;
+                },
+                getStockUrl: function (place, number, lenth) {
+                    var url = "https://finance.sina.com.cn/realstock/company/" + place + number + "/nc.shtml";
+                    return url;
+                },
+                Show: function (StockNumber, StockName, TradePlace, Date, Whole_BeatHowMany, Tec_BeatHowMany, Fund_BeatHowMany, Message_BeatHowMany, Section_BeatHowMany, Basic_BeatHowMany) {
+                    var _self = this;
+                    var recommenddate = _self.jsonDateFormat(Date);
+                    yui.$axiosget('/SelfSelect/AskIfAddedToday?StockNumber=' + StockNumber)
+                        .then(function (response) {
+                            if (response.data.Item1) {
+                                var index = layer.confirm(response.data.Item2+"。确认新增修改?", { btn: ["确认", "取消"] }, function () {
+                                    layer.close(index);
+                                    yui.layershow("添加自选", "/SelfSelect/Add?IsStock=1&StockNumber=" + StockNumber + "&StockName=" + StockName + "&TradePlace=" + TradePlace + "&Date=" + recommenddate + "&Whole_BeatHowMany=" + Whole_BeatHowMany + "&Tec_BeatHowMany=" + Tec_BeatHowMany + "&Fund_BeatHowMany=" + Fund_BeatHowMany + "&Message_BeatHowMany=" + Message_BeatHowMany + "&Section_BeatHowMany=" + Section_BeatHowMany + "&Basic_BeatHowMany=" + Basic_BeatHowMany, _self.width * 0.8, _self.height * 0.8);
+                                }, function () {
+                                });
+
+                            } else {
+                                yui.layershow("添加自选", "/SelfSelect/Add?IsStock=1&StockNumber=" + StockNumber + "&StockName=" + StockName + "&TradePlace=" + TradePlace + "&Date=" + recommenddate + "&Whole_BeatHowMany=" + Whole_BeatHowMany + "&Tec_BeatHowMany=" + Tec_BeatHowMany + "&Fund_BeatHowMany=" + Fund_BeatHowMany + "&Message_BeatHowMany=" + Message_BeatHowMany + "&Section_BeatHowMany=" + Section_BeatHowMany + "&Basic_BeatHowMany=" + Basic_BeatHowMany, _self.width * 0.8, _self.height * 0.8);
+                            }
+                        })
+                        .catch(function (error) {
+                            layer.msg(error.message, { icon: 5 });
+                        });
+                },
+                deleteL: function () {
+                    var _self = this;
+                    var arr = $("#bootstraptable").bootstrapTable('getSelections');
+                    if (arr.length > 0) {
+                        var index = layer.confirm("您确定要删除吗？", { btn: ["确定", "取消"] }, function () {
+                            var id = arr[0].DeptId;
+                            yui.$axiosget('/Dept/Delete?id=' + id)
+                                .then(function (response) {
+                                    if (response.data.Item1) {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                                        //_self.searchL();
+                                    } else {
+                                        layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                                    }
+                                })
+                                .catch(function (error) {
+                                    layer.msg(error.message, { icon: 5 });
+                                });
+                            layer.close(index);
+                        });
+                    } else {
+                        layer.alert("请选中行", { icoon: 3, skin: "layer-ext-moon" });
+                    }
+                },
+                deleteOperation: function () {
+                    var _self = this;
+                    var index = layer.confirm("您确定要删除该策略吗？", { btn: ["确定", "取消"] }, function () {
+                        var data = {
+                            StrategyIdList: _self.checkedNames,
+                        };
+                        yui.$axiospostform('/Dict/DeleteSelectStrategy', data).then(function (response) {
+                            if (response.data.Item1) {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 1 });
+                                _self.GetDicList();
+                            } else {
+                                layer.msg(response.data.Item2 || errorMsg, { icon: 5 });
+                            }
+
+                        }).catch(function (error) {
+                            console.info(error);
+                        });
+                    });
+                }
+            }
+        });
+    </script>
+}
+

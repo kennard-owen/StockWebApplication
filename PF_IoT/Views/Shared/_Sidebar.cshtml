@@ -1,0 +1,191 @@
+﻿@using PF.Core.Dto
+@model string
+@{
+    var menus = ViewData["menu"] as List<PermissionMenu>;
+}
+<!-- Left side column. contains the logo and sidebar -->
+<aside class="main-sidebar" style="">
+    <section class="sidebar">
+
+        <!-- Sidebar user panel -->
+        <div class="user-panel">
+            <div class="pull-left image">
+                <img src="~/@ViewBag.headimg" class="img-circle" alt="User Image" />
+            </div>
+            <div class="pull-left info">
+                <p>@ViewBag.nickname</p>
+                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+            </div>
+        </div>
+
+        <!-- search form -->
+        <form action="#" method="get" class="sidebar-form" onsubmit="return false">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search...">
+                <span class="input-group-btn">
+                    <button type="submit" name="search" id="search-btn" class="btn btn-flat">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+            </div>
+        </form>
+        <!-- /.search form -->
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        <ul class="sidebar-menu" data-widget="tree">
+            <li class="header">MAIN NAVIGATION</li>
+
+            @*<li class="active treeview">*@
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-dashboard"></i>
+                    <span>Dashboard</span>
+                    @*<span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>*@
+                </a>
+                <ul class="treeview-menu">
+                    @*<li ref="TrashCan"><a href="/Home"><i class="fa fa-circle-o"></i>Trash can</a></li>
+                    <li ref="RawSensor"><a href="/Home/OriginalSensorIndex"><i class="fa fa-circle-o"></i>Raw sensor</a></li>*@
+                </ul>
+            </li>
+
+            @{
+            if (menus.Count > 0)
+            {
+                foreach (var item in menus)
+                {
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-pie-chart"></i>
+                            <span>@item.Name</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            @foreach (var item2 in item.Children)
+                            {
+                                <li ref="@item2.Url?.Replace("/","")"><a href="@item2.Url"><i class="fa fa-circle-o"></i> @item2.Name</a></li>
+                            }
+                        </ul>
+                    </li>
+                }
+            }
+        }
+
+
+            @*@{
+                int a = 0;
+                if (menus.Count > 0)
+                {
+
+                    foreach (var item in menus)
+                    {
+                        a++;
+                        if (a > 1)
+                        {
+                            break;
+                        }
+                        <li class="treeview">
+                            <a href="#">
+                                <i class="fa fa-pie-chart"></i>
+                                <span>@item.Name</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-left pull-right"></i>
+                                </span>
+                            </a>
+
+                            <ul class="treeview-menu">
+                                @foreach (var item2 in item.Children)
+                                {
+                                    <li ref="@item2.Url?.Replace("/","")"><a href="@item2.Url"><i class="fa fa-circle-o"></i> @item2.Name</a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                }
+            }
+
+
+
+
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-pie-chart"></i>
+                    <span>设备监控</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>总装车间</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>焊装车间</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>喷涂车间</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>冲压车间</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>控制器车间</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>注塑车间</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>发动机车间</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-pie-chart"></i>
+                    <span>设备日志</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>日志查询</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-pie-chart"></i>
+                    <span>设备维护</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>维护记录</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>维护提醒</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>维保单据</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>维护看板</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>备件提醒</a></li>
+                </ul>
+            </li>
+
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-pie-chart"></i>
+                    <span>报表透视</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>故障分析</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>维保分析</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>生命周期</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-pie-chart"></i>
+                    <span>系统设置</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>系统日志</a></li>
+                    <li ref=""><a href=""><i class="fa fa-circle-o"></i>系统版本</a></li>
+                </ul>
+            </li>*@
+
+
+
+        </ul>
+    </section>
+</aside>

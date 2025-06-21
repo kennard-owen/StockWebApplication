@@ -1,0 +1,346 @@
+﻿@{
+    Layout = "_LayoutH";
+    var StockNumber = ViewData["StockNumber"] as string;
+    var Date = ViewData["Date"] as string;
+}
+<div id="app" v-cloak>
+    <div class="input-group" style="display:none">
+        <span class="input-group-addon">日期范围</span>
+        <input type="text" ref="datemin" id="datemin" class="form-control" style="width:120px;">
+        <input type="text" ref="datemax" id="datemax" class="form-control" style="width:120px;margin-left:10px;">
+    </div>
+    <table id="bootstraptable" class="table table-bordered text-nowrap table-hover"></table>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        var app = new Vue({
+            el: '#app',
+            data: {
+                datemin: '',
+                datemax: '',
+                StockNumber: '@StockNumber',
+                Date:'@Date',
+            },
+            mounted: function () {
+                var _self = this;
+                _self.$nextTick(function () {
+                    _self.$refs.datemin.value = _self.getCurrentMonthFirst();
+                    _self.$refs.datemax.value = _self.getCurrentMonthLast();
+                    setTimeout(function () {
+                        _self.loadL();
+                    }, 500);
+                });
+            },
+            methods: {
+                loadL: function () {
+                    _self = this;
+                    var obj = [{
+                        checkbox: true,             //是否显示复选框
+                        visible: false
+                    },
+                    {
+                        field: 'Id',
+                        title: 'Id',
+                        visible: false
+                    }, {
+                        field: 'StockName',
+                        title: 'StockName',
+                        align: 'center',
+                        sortable: true,
+                        visible: false
+                        }, {
+                            field: 'UpdateTimeFlag',
+                            title: 'UpdateTimeFlag',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                            field: 'Whole_ShortTrend',
+                            title: 'Whole_ShortTrend',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }
+                        , {
+                            field: 'Whole_MiddleTrend',
+                            title: 'Whole_MiddleTrend',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                            field: 'Whole_LongTrend',
+                            title: 'Whole_LongTrend',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        },{
+                        field: 'Section',
+                        title: 'Section',
+                        align: 'center',
+                        sortable: true,
+                        visible: false
+                        }, 
+                        {
+                            field: 'Basic_Institute_Ratings',
+                            title: 'Basic_Institute_Ratings',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        },
+                        {
+                            field: 'Whole_BuyLevel',
+                            title: 'Whole_BuyLevel',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, 
+                        
+                        {
+                            field: 'Fund_MainForceControl',
+                            title: 'Fund_MainForceControl',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, 
+                        {
+                        field: 'Section_Section_Rank',
+                        title: 'Section_Section_Rank',
+                            align: 'center',
+                            sortable: true,
+                        visible: true
+                        },  {
+                            field: 'UpdateTimeFlag',
+                            title: 'UpdateTimeFlag',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                            field: 'Section_ThisStock_5DayUp',
+                            title: 'Section_ThisStock_5DayUp',
+                            align: 'center',
+                            sortable: true,
+                           visible: true
+                        }, {
+                            field: 'Section_ThisStock_1DayUp',
+                            title: 'Section_ThisStock_1DayUp',
+                            align: 'center',
+                            sortable: true,
+                           visible: true
+                        },
+                    {
+                        field: 'UpdateTimeFlag',
+                        title: 'UpdateTimeFlag',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                            field: 'Whole_Level2Suggest',
+                            title: 'Whole_Level2Suggest',
+                            align: 'center',
+                        sortable: true,
+                        visible: true
+                        }
+                        , {
+                            field: 'UpdateTimeFlag',
+                            title: 'UpdateTimeFlag',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                            field: 'Whole_DescriptionLevel2',
+                            title: 'Whole_DescriptionLevel2',
+                            align: 'center',
+                           sortable: true,
+                           visible: true
+                        }
+                        ,  {
+                           field: 'MainForceCount',
+                           title: 'MainForceCount',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                           field: 'MainForceHowMany',
+                           title: 'MainForceHowMany',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                           field: 'MainForcePercentage',
+                           title: 'MainForcePercentage',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        },
+                        {
+                            field: 'UpdateTimeFlag',
+                            title: 'UpdateTimeFlag',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                            field: 'Fund_Level2_Description',
+                            title: 'Fund_Level2_Description',
+                            align: 'center',
+                            sortable: true,
+                           visible: true
+                        }, {
+                            field: 'UpdateTimeFlag',
+                            title: 'UpdateTimeFlag',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                            field: 'Fund_Level2_GoWhere',
+                            title: 'Fund_Level2_GoWhere',
+                            align: 'center',
+                            sortable: true,
+                           visible: true
+                        }
+                        , {
+                            field: 'Whole_LongTrend',
+                            title: 'Whole_LongTrend',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                            field: 'Whole_BuyLevel',
+                            title: 'Whole_BuyLevel',
+                            align: 'center',
+                            sortable: true,
+                            visible: true
+                        }, {
+                            field: 'Basic_Institute_Ratings',
+                            title: 'Basic_Institute_Ratings',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                            field: 'FundRank',
+                            title: 'FundRank',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                            field: 'Fund_MainForceControl',
+                            title: 'Fund_MainForceControl',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                            field: 'Fund_Section_Overview',
+                            title: 'Fund_Section_Overview',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                            field: 'Fund_Institute_Position_Description',
+                            title: 'Fund_Institute_Position_Description',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                            field: 'Message_Description',
+                            title: 'Message_Description',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                      , {
+                            field: 'Tec_OverViewDescription',
+                            title: 'Tec_OverViewDescription',
+                            align: 'center',
+                          sortable: true,
+                          visible: false
+                        }, {
+                            field: 'Message_Description',
+                            title: 'Message_Description',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                            field: 'Section_Description',
+                            title: 'Section_Description',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                            field: 'Basic_Description',
+                            title: 'Basic_Description',
+                            align: 'center',
+                            sortable: true,
+                            visible: false
+                        }
+                        , {
+                        field: 'Whole_BeatHowMany',
+                        title: 'Whole_BeatHowMany',
+                        align: 'center',
+                            sortable: true,
+                            visible: true
+                    }, {
+                        field: 'Tec_BeatHowMany',
+                        title: 'Tec_BeatHowMany',
+                        align: 'center',
+                            sortable: true,
+                            visible: true
+                    }, {
+                        field: 'Fund_BeatHowMany',
+                        title: 'Fund_BeatHowMany',
+                        align: 'center',
+                            sortable: true,
+                            visible: true
+                    }, {
+                        field: 'Message_BeatHowMany',
+                        title: 'Message_BeatHowMany',
+                        align: 'center',
+                            sortable: true,
+                            visible: true
+                    },{
+                        field: 'Section_BeatHowMany',
+                        title: 'Section_BeatHowMany',
+                        align: 'center',
+                            sortable: true,
+                            visible: true
+                    }, {
+                        field: 'Basic_BeatHowMany',
+                        title: 'Basic_BeatHowMany',
+                        align: 'center',
+                            sortable: true,
+                            visible: true
+                        }
+                      
+                        
+                        
+                    ];
+                    var qParams = {
+                        StockNumber: _self.StockNumber,
+                        Date: _self.Date,
+                    };
+                    yui.table("bootstraptable", "/Stock/LatestInfoViewData", obj, "POST", "Id", true, qParams);
+                },
+                showL: function () {
+                    yui.layershow("添加字典", "/Dict/Add", 300, 580);
+                },
+                searchL: function () {
+                    var qParams = {
+                        StockNumber: _self.StockNumber,
+                        Date: _self.Date,
+                    };
+                    var query = {
+                        silent: true,
+                        query: qParams
+                    };
+                    $("#bootstraptable").bootstrapTable('refresh', query);
+                },
+            }
+        });
+    </script>
+}
